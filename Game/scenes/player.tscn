@@ -1,0 +1,38 @@
+[gd_scene load_steps=5 format=3 uid="uid://cqhi22h0pk084"]
+
+[ext_resource type="Texture2D" uid="uid://b5e15o12j2wkx" path="res://Game/sprites/icon.svg" id="1_4g6l8"]
+[ext_resource type="Script" uid="uid://bchrmtdn1o2qb" path="res://Game/scripts/UltimatePlatformerController.gd" id="1_y4t5y"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_4g6l8"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_4g6l8")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_y4t5y"]
+radius = 35.0
+height = 120.0
+
+[node name="player" type="CharacterBody2D" node_paths=PackedStringArray("PlayerSprite", "PlayerCollider")]
+script = ExtResource("1_y4t5y")
+PlayerSprite = NodePath("Sprite2D")
+PlayerCollider = NodePath("CollisionShape2D")
+maxSpeed = 800.0
+jumpHeight = 3.0
+gravityScale = 50.0
+terminalVelocity = 1000.0
+wallJump = true
+inputPauseAfterWallJump = 0.0
+wallSliding = 4.0
+dashCancel = false
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_4g6l8")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_y4t5y")

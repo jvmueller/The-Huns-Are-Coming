@@ -1,0 +1,26 @@
+[gd_scene load_steps=2 format=3 uid="uid://c4cg1tann2x24"]
+
+[ext_resource type="Script" uid="uid://dfaro5lqqhu8v" path="res://Game/scenes/level_manager.gd" id="1_ds5t7"]
+
+[node name="Game" type="Node2D"]
+
+[node name="LevelManager" type="Node" parent="."]
+script = ExtResource("1_ds5t7")
+horz_dist = 10000.0
+vert_variance = 4000.0
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(0.2, 0.2)
+position_smoothing_enabled = true
+position_smoothing_speed = 3.0
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 15.0
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Label" type="Label" parent="CanvasLayer"]
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_font_sizes/font_size = 20
+text = "null"

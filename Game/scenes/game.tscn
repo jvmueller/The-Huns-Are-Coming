@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://c4cg1tann2x24"]
 
-[ext_resource type="Script" uid="uid://dfaro5lqqhu8v" path="res://Game/scenes/level_manager.gd" id="1_ds5t7"]
+[ext_resource type="Script" uid="uid://dfaro5lqqhu8v" path="res://Game/scripts/level_manager.gd" id="1_ds5t7"]
 
 [node name="Game" type="Node2D"]
 

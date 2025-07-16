@@ -1,127 +1,150 @@
 extends CharacterBody2D
 
+enum state {
+	idling,
+	walking,
+	falling,
+	attacking,
+	rolling,
+	sliding
+}
+
 @onready var attack_timer: Timer = $AttackTimer
 @onready var roll_timer: Timer = $RollTimer
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
 
-var move_speed: float = 350
-var jump_power: float = 600
+var current_state: state
+var direction
 
-var state_machine: LimboHSM
-
+@export var move_speed: float = 350
+@export var jump_power: float = 600
+@export var slide_speed: float = 0.25
+@export var x_acceleration: float = 30
 
 func _ready() -> void:
-	initiate_state_machine()
+	current_state = state.falling
 
 
-func _physics_process(delta: float) -> void:
-	Global.state = state_machine.get_active_state()
-	
-	if not is_on_floor():
-		velocity += get_gravity() * delta
-		
-	# Get the input direction and handle the movement/deceleration.
-	# As good practice, you should replace UI actions with custom gameplay actions.
-	var direction := Input.get_axis("left", "right")
+# Handles everything related to changing states
+# You could also move each state's setup into a separate function if you had a lot to do.
+func change_state(new_state: state) -> void:
+	current_state = new_state
+	print_state()
+	match current_state:
+		state.idling:
+			pass
+		state.walking:
+			pass
+		state.falling:
+			pass
+		state.attacking:
+			attack_timer.start()
+		state.rolling:
+			roll_timer.start()
+		state.sliding:
+			pass
+
+#specific state change into falling induced by the jump action
+func jump() -> void:
+	velocity.y = -1 * jump_power
+	change_state(state.falling)
+
+
+func wall_jump() -> void:
+	velocity.y = -1 * jump_power
+	velocity.x = -1 * direction * jump_power * 1.5
+	change_state(state.falling)
+
+
+func print_state() -> void:
+	match current_state:
+		state.idling:
+			print("idle")
+		state.walking:
+			print("walk")
+		state.falling:
+			print("fall")
+		state.attacking:
+			print("attack")
+		state.rolling:
+			print("roll")
+		state.sliding:
+			print("slide")
+
+
+func handle_move() -> void:
+	direction = Input.get_axis("left", "right")
 	if direction:
-		velocity.x = direction * move_speed
+		velocity.x = move_toward(velocity.x, direction * move_speed,x_acceleration)
 	else:
 		velocity.x = move_toward(velocity.x, 0, move_speed)
 
+
+func _physics_process(delta: float) -> void:
+	#state update behavior
+	match current_state:
+		state.idling:
+			if not is_on_floor():
+				change_state(state.falling)
+			
+			direction = Input.get_axis("left", "right")
+			if direction:
+				change_state(state.walking)
+			
+			if Input.is_action_just_pressed("jump"):
+				jump()
+		
+			if Input.is_action_just_pressed("roll"):
+				change_state(state.rolling)
+			
+			if Input.is_action_just_pressed("attack"):
+				change_state(state.attacking)
+		
+		state.walking:
+			if not is_on_floor():
+				change_state(state.falling)
+			
+			if Input.is_action_just_pressed("jump"):
+				jump()
+			
+			handle_move()
+			
+			if velocity.x == 0:
+				change_state(state.idling)
+			
+		state.falling:
+			velocity += get_gravity() * delta
+			
+			if is_on_wall():
+				change_state(state.sliding)
+			
+			#handle_move()
+			direction = Input.get_axis("left", "right")
+			velocity.x = move_toward(velocity.x, direction * move_speed,x_acceleration)
+			
+			if is_on_floor():
+				change_state(state.idling)
+			
+		state.attacking:
+			if attack_timer.is_stopped():
+				change_state(state.idling)
+			
+		state.rolling:
+			if roll_timer.is_stopped():
+				change_state(state.idling)
+		
+		state.sliding:
+			if velocity.y > 0:
+				velocity += get_gravity() * delta * slide_speed
+			if velocity.y < 0:
+				velocity += get_gravity() * delta / slide_speed
+			
+			handle_move()
+			
+			if Input.is_action_just_pressed("jump"):
+				wall_jump()
+			
+			if not is_on_wall():
+				change_state(state.falling)
+	
 	move_and_slide()
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("jump"):
-		state_machine.dispatch(&"to_jump")
-	
-	elif event.is_action_pressed("attack"):
-		state_machine.dispatch(&"to_attack")
-	
-	elif event.is_action_pressed("roll"):
-		state_machine.dispatch(&"to_roll")
-	
-
-func initiate_state_machine():
-	#creates state machine and adds to player scene
-	state_machine = LimboHSM.new()
-	add_child(state_machine)
-	
-	#creates state variables for each state
-	var idle_state = LimboState.new().named("idle").call_on_enter(idle_start).call_on_update(idle_update)
-	var walk_state = LimboState.new().named("walk").call_on_enter(walk_start).call_on_update(walk_update)
-	var jump_state = LimboState.new().named("jump").call_on_enter(jump_start).call_on_update(jump_update)
-	var roll_state = LimboState.new().named("roll").call_on_enter(roll_start).call_on_update(roll_update)
-	var attack_state = LimboState.new().named("attack").call_on_enter(attack_start).call_on_update(attack_update)
-	
-	#adds states into machine
-	state_machine.add_child(idle_state)
-	state_machine.add_child(walk_state)
-	state_machine.add_child(jump_state)
-	state_machine.add_child(roll_state)
-	state_machine.add_child(attack_state)
-	
-	#sets the starting state to idle
-	state_machine.initial_state = idle_state
-	
-	#to walk transition
-	state_machine.add_transition(idle_state,walk_state, &"to_walk")
-	#to jump transitions
-	state_machine.add_transition(idle_state,jump_state, &"to_jump")
-	state_machine.add_transition(walk_state,jump_state, &"to_jump")
-	#to idle transition
-	state_machine.add_transition(state_machine.ANYSTATE, idle_state, &"to_idle")
-	#to attack transitions
-	state_machine.add_transition(idle_state, attack_state, &"to_attack")
-	state_machine.add_transition(walk_state, attack_state, &"to_attack")
-	#to roll transitions
-	state_machine.add_transition(idle_state, roll_state, &"to_roll")
-	state_machine.add_transition(walk_state, roll_state, &"to_roll")
-	state_machine.add_transition(jump_state, roll_state, &"to_roll")
-	
-	#initializes the state machine
-	state_machine.initialize(self)
-	state_machine.set_active(true)
-
-
-func idle_start():
-	pass
-
-
-func idle_update(delta: float):
-	if velocity.x != 0:
-		state_machine.dispatch(&"to_walk")
-
-
-func walk_start():
-	pass
-
-
-func walk_update(delta: float):
-	if velocity.x == 0:
-		state_machine.dispatch(&"to_idle")
-
-
-func jump_start():
-	velocity.y = -1 * jump_power
-
-
-func jump_update(delta: float):
-	if is_on_floor():
-		state_machine.dispatch(&"to_idle")
-	
-
-func roll_start():
-	roll_timer.start()
-
-
-func roll_update(delta: float):
-	if roll_timer.is_stopped():
-		state_machine.dispatch(&"to_idle")
-
-
-func attack_start():
-	attack_timer.start()
-
-
-func attack_update(delta: float):
-	if attack_timer.is_stopped():
-		state_machine.dispatch(&"to_idle")

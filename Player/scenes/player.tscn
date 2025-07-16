@@ -15,8 +15,8 @@ animations = [{
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_y4t5y"]
-radius = 35.0
-height = 120.0
+radius = 46.0
+height = 126.0
 
 [node name="player" type="CharacterBody2D"]
 collision_layer = 2
@@ -35,3 +35,5 @@ one_shot = true
 [node name="RollTimer" type="Timer" parent="."]
 wait_time = 0.5
 one_shot = true
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]

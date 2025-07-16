@@ -60,4 +60,3 @@ func move_camera() -> void:
 
 func update_label() -> void:
 	timer_label.text = "time left: %s" % snapped(timer.time_left,0.01)
-	state_label.text = "state: %s" % Global.state.name

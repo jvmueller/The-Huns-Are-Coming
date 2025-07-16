@@ -13,11 +13,12 @@ config_version=5
 config/name="The Huns Are Coming!"
 run/main_scene="uid://dkj2kch5yhmp8"
 config/features=PackedStringArray("4.4", "GL Compatibility")
-config/icon="res://Player/icon.svg"
+config/icon="res://Player/sprites/icon.svg"
 
 [autoload]
 
 Global="*res://Game/scripts/global.gd"
+GameManager="*res://Game/scripts/game_manager.gd"
 
 [input]
 

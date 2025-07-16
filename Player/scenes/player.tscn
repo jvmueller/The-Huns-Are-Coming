@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://cqhi22h0pk084"]
 
 [ext_resource type="Script" uid="uid://cno3f0fu3ihw6" path="res://Player/scripts/player.gd" id="1_wmpps"]
-[ext_resource type="Texture2D" uid="uid://b5e15o12j2wkx" path="res://Player/icon.svg" id="2_xr54b"]
+[ext_resource type="Texture2D" uid="uid://b5e15o12j2wkx" path="res://Player/sprites/icon.svg" id="2_xr54b"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_4g6l8"]
 animations = [{

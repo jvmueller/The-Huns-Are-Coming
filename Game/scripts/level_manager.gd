@@ -34,7 +34,8 @@ func move_to_next_room() -> void:
 
 func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("next_room"):
-		move_to_next_room()
+		#move_to_next_room()
+		GameManager.win()
 	update_label()
 
 

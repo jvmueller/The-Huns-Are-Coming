@@ -23,7 +23,6 @@ sources/2 = SubResource("TileSetAtlasSource_gwf8m")
 
 [node name="player" parent="." instance=ExtResource("1_prj8d")]
 position = Vector2(-169, 947)
-JUMP_VELOCITY = 600.0
 
 [node name="Level" type="TileMapLayer" parent="."]
 position = Vector2(0, -215)

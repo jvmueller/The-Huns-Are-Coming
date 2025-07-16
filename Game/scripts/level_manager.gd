@@ -9,8 +9,9 @@ extends Node
 @export var vert_variance: float
 
 @onready var camera_2d: Camera2D = $"../Camera2D"
+@onready var state_label: Label = $"../CanvasLayer/VBoxContainer/StateLabel"
+@onready var timer_label: Label = $"../CanvasLayer/VBoxContainer/TimerLabel"
 @onready var timer: Timer = $"../Timer"
-@onready var label: Label = $"../CanvasLayer/Label"
 
 var current_room_index: int = -1
 var current_room_position: Vector2 = Vector2(0,0)
@@ -58,4 +59,5 @@ func move_camera() -> void:
 
 
 func update_label() -> void:
-	label.text = "time left: %s" % snapped(timer.time_left,0.01)
+	timer_label.text = "time left: %s" % snapped(timer.time_left,0.01)
+	state_label.text = "state: %s" % Global.state.name

@@ -15,11 +15,16 @@ enum state {
 
 var current_state: state
 var direction
+var fast_falling: bool
 
-@export var move_speed: float = 350
+
+@export var move_speed: float = 450
 @export var jump_power: float = 600
+@export var wall_jump_power: float = 600
 @export var slide_speed: float = 0.25
-@export var x_acceleration: float = 30
+@export var drag_acceleration: float = 15
+@export var walk_acceleration: float = 50
+@export var fast_falling_speed: float = 1.5
 
 func _ready() -> void:
 	current_state = state.falling
@@ -32,7 +37,7 @@ func change_state(new_state: state) -> void:
 	print_state()
 	match current_state:
 		state.idling:
-			pass
+			fast_falling = false
 		state.walking:
 			pass
 		state.falling:
@@ -42,17 +47,18 @@ func change_state(new_state: state) -> void:
 		state.rolling:
 			roll_timer.start()
 		state.sliding:
-			pass
+			fast_falling = false
 
 #specific state change into falling induced by the jump action
 func jump() -> void:
 	velocity.y = -1 * jump_power
+	fast_falling = true
 	change_state(state.falling)
 
 
 func wall_jump() -> void:
-	velocity.y = -1 * jump_power
-	velocity.x = -1 * direction * jump_power * 1.5
+	velocity.y = -1 * jump_power * .75
+	velocity.x = -1 * direction * wall_jump_power
 	change_state(state.falling)
 
 
@@ -74,10 +80,20 @@ func print_state() -> void:
 
 func handle_move() -> void:
 	direction = Input.get_axis("left", "right")
-	if direction:
-		velocity.x = move_toward(velocity.x, direction * move_speed,x_acceleration)
+	if fast_wall_jumping():
+		if direction != sign(velocity.x):
+			velocity.x = move_toward(velocity.x, 0, drag_acceleration * .75)
 	else:
-		velocity.x = move_toward(velocity.x, 0, move_speed)
+		if direction: #input
+			velocity.x = move_toward(velocity.x, direction * move_speed, walk_acceleration)
+		elif current_state == state.walking:#no input and on ground
+			velocity.x = move_toward(velocity.x, 0, move_speed)
+		else: #no input in air
+			velocity.x = move_toward(velocity.x, 0, drag_acceleration)
+
+
+func fast_wall_jumping() -> bool:
+	return abs(velocity.x) >= move_speed and current_state == state.falling
 
 
 func _physics_process(delta: float) -> void:
@@ -113,14 +129,15 @@ func _physics_process(delta: float) -> void:
 				change_state(state.idling)
 			
 		state.falling:
-			velocity += get_gravity() * delta
+			if(fast_falling and velocity.y > 0):
+				velocity += get_gravity() * delta * fast_falling_speed
+			else: 
+				velocity += get_gravity() * delta
 			
 			if is_on_wall():
 				change_state(state.sliding)
 			
-			#handle_move()
-			direction = Input.get_axis("left", "right")
-			velocity.x = move_toward(velocity.x, direction * move_speed,x_acceleration)
+			handle_move()
 			
 			if is_on_floor():
 				change_state(state.idling)

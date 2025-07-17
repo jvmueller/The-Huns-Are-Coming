@@ -34,10 +34,6 @@ var coyote_active: bool
 @export var fast_falling_speed: float = 1.5
 @export var knockback_speed_x: float = 200
 @export var knockback_speed_y: float = -200
-@export var roll_curve: Curve
-
-
-
 
 
 func _ready() -> void:
@@ -95,7 +91,6 @@ func print_state() -> void:
 			print("slide")
 		state.stun:
 			print("stun")
-			print(last_direction)
 
 
 func handle_move() -> void:
@@ -146,6 +141,8 @@ func _physics_process(delta: float) -> void:
 		state.idling:
 			if not is_on_floor():
 				change_state(state.falling)
+			elif abs(velocity.x) > 0:
+				change_state(state.walking)
 			
 			direction = Input.get_axis("left", "right")
 			if direction:
@@ -220,10 +217,9 @@ func _physics_process(delta: float) -> void:
 				change_state(state.idling)
 			
 		state.rolling:
-			if is_on_wall():
+			if is_on_wall() and velocity.x == 0:
 				velocity = Vector2(knockback_speed_x * last_direction * -1, knockback_speed_y)
 				stun_timer.start()
-				
 				change_state(state.stun)
 	
 			if roll_timer.is_stopped():
@@ -232,8 +228,6 @@ func _physics_process(delta: float) -> void:
 				velocity.x = move_toward(velocity.x, move_speed * last_direction, (roll_speed - move_speed) * delta / roll_timer.wait_time)
 		
 		state.sliding:
-			
-			
 			handle_move()
 			
 			if is_on_wall_only() and Input.is_action_just_pressed("jump"):

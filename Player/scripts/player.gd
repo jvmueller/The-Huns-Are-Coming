@@ -6,7 +6,8 @@ enum state {
 	falling,
 	attacking,
 	rolling,
-	sliding
+	sliding,
+	stun
 }
 
 @onready var attack_timer: Timer = $AttackTimer
@@ -14,20 +15,26 @@ enum state {
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 @onready var coyote_timer: Timer = $CoyoteTimer
 @onready var jump_buffer_timer: Timer = $JumpBufferTimer
+@onready var wall_jump_timer: Timer = $WallJumpTimer
+@onready var stun_timer: Timer = $StunTimer
 
 var current_state: state
 var direction
+var last_direction = 1
 var fast_falling: bool
-var jump_was_pressed: bool
 var coyote_active: bool
 
-@export var move_speed: float = 600
-@export var jump_power: float = 600
-@export var wall_jump_power: float = 800
+@export var move_speed: float = 650
+@export var roll_speed: float = 1200
+@export var jump_power: float = 800
+@export var wall_jump_power: float = 700
 @export var slide_speed: float = 0.25
 @export var drag_acceleration: float = 15
 @export var walk_acceleration: float = 50
 @export var fast_falling_speed: float = 1.5
+@export var knockback_speed_x: float = 200
+@export var knockback_speed_y: float = -200
+@export var roll_curve: Curve
 
 
 
@@ -52,6 +59,7 @@ func change_state(new_state: state) -> void:
 		state.attacking:
 			attack_timer.start()
 		state.rolling:
+			velocity.x = last_direction * roll_speed
 			roll_timer.start()
 		state.sliding:
 			fast_falling = false
@@ -64,6 +72,8 @@ func jump() -> void:
 
 
 func wall_jump() -> void:
+	wall_jump_timer.start()
+	fast_falling = true
 	velocity.y = -1 * jump_power * .75
 	velocity.x = -1 * direction * wall_jump_power
 	change_state(state.falling)
@@ -83,13 +93,21 @@ func print_state() -> void:
 			print("roll")
 		state.sliding:
 			print("slide")
+		state.stun:
+			print("stun")
+			print(last_direction)
 
 
 func handle_move() -> void:
 	direction = Input.get_axis("left", "right")
+	
+	if direction:
+		last_direction = direction
+	
 	if is_fast_wall_jumping():
 		if direction != sign(velocity.x):
 			velocity.x = move_toward(velocity.x, 0, drag_acceleration * .75)
+		
 	else:
 		if direction: #input
 			velocity.x = move_toward(velocity.x, direction * move_speed, walk_acceleration)
@@ -103,7 +121,26 @@ func is_fast_wall_jumping() -> bool:
 	return abs(velocity.x) >= move_speed and current_state == state.falling
 
 
+func update_gravity(delta: float):
+	if current_state == state.sliding:
+		if velocity.y > 0:
+			velocity += get_gravity() * delta * slide_speed
+		if velocity.y < 0:
+			velocity += get_gravity() * delta / slide_speed
+		
+	elif(fast_falling and velocity.y > 0):
+		velocity += get_gravity() * delta * fast_falling_speed
+	
+	else: 
+		velocity += get_gravity() * delta
+	
+	
+	
+
+
 func _physics_process(delta: float) -> void:
+	update_gravity(delta)
+	
 	#state update behavior
 	match current_state:
 		state.idling:
@@ -112,6 +149,7 @@ func _physics_process(delta: float) -> void:
 			
 			direction = Input.get_axis("left", "right")
 			if direction:
+				last_direction = direction
 				change_state(state.walking)
 			
 			if Input.is_action_just_pressed("jump"):
@@ -122,6 +160,13 @@ func _physics_process(delta: float) -> void:
 			
 			if Input.is_action_just_pressed("attack"):
 				change_state(state.attacking)
+		
+		state.stun:
+			if is_on_floor():
+				velocity.x = 0
+	
+			if stun_timer.time_left == 0:
+				change_state(state.idling)
 		
 		state.walking:
 			if not is_on_floor():
@@ -138,6 +183,12 @@ func _physics_process(delta: float) -> void:
 			if velocity.x == 0:
 				change_state(state.idling)
 			
+			if Input.is_action_just_pressed("roll"):
+				change_state(state.rolling)
+			
+			if Input.is_action_just_pressed("attack"):
+				change_state(state.attacking)
+			
 		state.falling:
 			if Input.is_action_just_pressed("jump"):
 				if coyote_active:
@@ -145,16 +196,19 @@ func _physics_process(delta: float) -> void:
 				else:
 					jump_buffer_timer.start()
 			
-			if(fast_falling and velocity.y > 0):
-				velocity += get_gravity() * delta * fast_falling_speed
-			else: 
-				velocity += get_gravity() * delta
+			
 			
 			if is_on_wall():
 				change_state(state.sliding)
 			
-			handle_move()
-			
+			if wall_jump_timer.time_left > 0:
+				velocity.x = move_toward(velocity.x, move_speed * sign(velocity.x), (wall_jump_power - move_speed) * delta / wall_jump_timer.wait_time)
+			else:
+				handle_move()
+				
+			if Input.is_action_just_pressed("roll"):
+				change_state(state.rolling)
+				
 			if is_on_floor():
 				if jump_buffer_timer.time_left > 0:
 					jump()
@@ -166,22 +220,31 @@ func _physics_process(delta: float) -> void:
 				change_state(state.idling)
 			
 		state.rolling:
+			if is_on_wall():
+				velocity = Vector2(knockback_speed_x * last_direction * -1, knockback_speed_y)
+				stun_timer.start()
+				
+				change_state(state.stun)
+	
 			if roll_timer.is_stopped():
-				change_state(state.idling)
+				change_state(state.walking)
+			else:
+				velocity.x = move_toward(velocity.x, move_speed * last_direction, (roll_speed - move_speed) * delta / roll_timer.wait_time)
 		
 		state.sliding:
-			if velocity.y > 0:
-				velocity += get_gravity() * delta * slide_speed
-			if velocity.y < 0:
-				velocity += get_gravity() * delta / slide_speed
+			
 			
 			handle_move()
 			
-			if Input.is_action_just_pressed("jump"):
+			if is_on_wall_only() and Input.is_action_just_pressed("jump"):
 				wall_jump()
 			
 			if not is_on_wall():
 				change_state(state.falling)
+			
+			if is_on_floor():
+				change_state(state.idling)
+			
 	
 	move_and_slide()
 

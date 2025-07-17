@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="The Huns Are Coming!"
-run/main_scene="uid://c4cg1tann2x24"
+run/main_scene="uid://dkj2kch5yhmp8"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://Player/sprites/icon.svg"
 
@@ -64,6 +64,12 @@ roll={
 
 2d_physics/layer_1="Level"
 2d_physics/layer_2="Player"
+
+[physics]
+
+2d/default_gravity=1470.0
+2d/default_linear_damp=0.0
+2d/default_angular_damp=0.0
 
 [rendering]
 

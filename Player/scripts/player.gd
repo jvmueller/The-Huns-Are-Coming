@@ -35,6 +35,7 @@ var coyote_active: bool
 @export var slide_speed: float = 250
 @export var drag_acceleration: float = 15
 @export var walk_acceleration: float = 50
+@export var slide_acceleration: float = 100
 @export var fast_falling_speed: float = 1.5
 @export var knockback_speed_x: float = 200
 @export var knockback_speed_y: float = -200
@@ -42,6 +43,7 @@ var coyote_active: bool
 @export var concussion_curve: Curve
 @export var player_collider: RectangleShape2D
 @export var roll_collider: RectangleShape2D
+
 
 
 
@@ -91,6 +93,7 @@ func change_state(new_state: state) -> void:
 func jump() -> void:
 	animation_player.play("jump")
 	velocity.y += -1 * jump_power
+	velocity.y = clampf(velocity.y,-1 * jump_power, 0)
 	fast_falling = true
 	change_state(state.falling)
 
@@ -100,6 +103,7 @@ func wall_jump() -> void:
 	wall_jump_timer.start()
 	fast_falling = true
 	velocity.y += -1 * wall_jump_vert_power
+	velocity.y = clampf(velocity.y,-1 * (wall_jump_vert_power - slide_speed), 0)
 	velocity.x = -1 * direction * wall_jump_horz_power
 	change_state(state.falling)
 
@@ -127,6 +131,8 @@ func handle_move() -> void:
 	
 	if direction:
 		last_direction = direction
+		if current_state == state.idling:
+			change_state(state.walking)
 	
 	if is_fast_wall_jumping():
 		if direction != sign(velocity.x):
@@ -154,7 +160,7 @@ func is_fast_wall_jumping() -> bool:
 func update_gravity(delta: float):
 	if current_state == state.sliding:
 		if velocity.y >= 0:
-			velocity.y = slide_speed
+			velocity.y = move_toward(velocity.y,slide_speed,slide_acceleration)
 		if velocity.y < 0:
 			velocity += get_gravity() * delta * 4
 		
@@ -180,10 +186,7 @@ func _physics_process(delta: float) -> void:
 			elif abs(velocity.x) > 0:
 				change_state(state.walking)
 			
-			direction = Input.get_axis("left", "right")
-			if direction:
-				last_direction = direction
-				change_state(state.walking)
+			handle_move()
 			
 			if Input.is_action_just_pressed("jump"):
 				jump()

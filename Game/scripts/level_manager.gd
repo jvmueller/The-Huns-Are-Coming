@@ -9,7 +9,6 @@ extends Node
 @export var vert_variance: float
 
 @onready var camera_2d: Camera2D = $"../Camera2D"
-@onready var state_label: Label = $"../CanvasLayer/VBoxContainer/StateLabel"
 @onready var timer_label: Label = $"../CanvasLayer/VBoxContainer/TimerLabel"
 @onready var timer: Timer = $"../Timer"
 

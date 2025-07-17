@@ -12,11 +12,14 @@ enum state {
 
 @onready var attack_timer: Timer = $AttackTimer
 @onready var roll_timer: Timer = $RollTimer
-@onready var animation_player: AnimationPlayer = $AnimationPlayer
 @onready var coyote_timer: Timer = $CoyoteTimer
 @onready var jump_buffer_timer: Timer = $JumpBufferTimer
 @onready var wall_jump_timer: Timer = $WallJumpTimer
 @onready var stun_timer: Timer = $StunTimer
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
+@onready var sprite_2d: Sprite2D = $Sprite2D
+@onready var collision_shape_2d: CollisionShape2D = $CollisionShape2D
+
 
 var current_state: state
 var direction
@@ -37,10 +40,14 @@ var coyote_active: bool
 @export var knockback_speed_y: float = -200
 @export var max_y_velocity: float = 1000
 @export var concussion_curve: Curve
+@export var player_collider: RectangleShape2D
+@export var roll_collider: RectangleShape2D
+
 
 
 func _ready() -> void:
 	current_state = state.falling
+	collision_shape_2d.shape = player_collider
 
 
 # Handles everything related to changing states
@@ -51,27 +58,45 @@ func change_state(new_state: state) -> void:
 	match current_state:
 		state.idling:
 			fast_falling = false
+			animation_player.play("idle")
 		state.walking:
-			pass
+			animation_player.play("walk")
 		state.falling:
-			pass
+			print(animation_player.current_animation)
+			if animation_player.current_animation != "jump":
+				animation_player.play("fall")
 		state.attacking:
 			attack_timer.start()
 		state.rolling:
+			collision_shape_2d.shape = roll_collider
+			
+			if last_direction == 1:
+				animation_player.play("roll right")
+			else:
+				animation_player.play("roll left")
+			
 			velocity.x = last_direction * roll_speed
 			roll_timer.start()
 		state.sliding:
 			fast_falling = false
+			if last_direction == 1:
+				animation_player.play("slide right")
+			else:
+				animation_player.play("slide left")
+		state.stun:
+			animation_player.play("jump")
 
 
 #specific state change into falling induced by the jump action
 func jump() -> void:
+	animation_player.play("jump")
 	velocity.y += -1 * jump_power
 	fast_falling = true
 	change_state(state.falling)
 
 
 func wall_jump() -> void:
+	animation_player.play("jump")
 	wall_jump_timer.start()
 	fast_falling = true
 	velocity.y += -1 * wall_jump_vert_power
@@ -116,6 +141,12 @@ func handle_move() -> void:
 			velocity.x = move_toward(velocity.x, 0, drag_acceleration)
 
 
+func flip_sprite() -> void:
+	if direction == 1:
+		sprite_2d.flip_h = false
+	elif direction == -1:
+		sprite_2d.flip_h = true
+
 func is_fast_wall_jumping() -> bool:
 	return abs(velocity.x) >= move_speed and current_state == state.falling
 
@@ -138,6 +169,8 @@ func update_gravity(delta: float):
 
 func _physics_process(delta: float) -> void:
 	update_gravity(delta)
+	
+	flip_sprite()
 	
 	#state update behavior
 	match current_state:
@@ -225,9 +258,11 @@ func _physics_process(delta: float) -> void:
 				velocity = Vector2(knockback_speed_x * last_direction * -1, knockback_speed_y)
 				stun_timer.wait_time = concussion_curve.sample(roll_timer.time_left)
 				stun_timer.start()
+				collision_shape_2d.shape = player_collider
 				change_state(state.stun)
 	
 			if roll_timer.is_stopped():
+				collision_shape_2d.shape = player_collider
 				change_state(state.walking)
 			else:
 				velocity.x = move_toward(velocity.x, move_speed * last_direction, (roll_speed - move_speed) * delta / roll_timer.wait_time)

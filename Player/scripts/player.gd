@@ -27,13 +27,16 @@ var coyote_active: bool
 @export var move_speed: float = 650
 @export var roll_speed: float = 1200
 @export var jump_power: float = 800
-@export var wall_jump_power: float = 700
-@export var slide_speed: float = 0.25
+@export var wall_jump_horz_power: float = 500
+@export var wall_jump_vert_power: float = 850
+@export var slide_speed: float = 250
 @export var drag_acceleration: float = 15
 @export var walk_acceleration: float = 50
 @export var fast_falling_speed: float = 1.5
 @export var knockback_speed_x: float = 200
 @export var knockback_speed_y: float = -200
+@export var max_y_velocity: float = 1000
+@export var concussion_curve: Curve
 
 
 func _ready() -> void:
@@ -60,9 +63,10 @@ func change_state(new_state: state) -> void:
 		state.sliding:
 			fast_falling = false
 
+
 #specific state change into falling induced by the jump action
 func jump() -> void:
-	velocity.y = -1 * jump_power
+	velocity.y += -1 * jump_power
 	fast_falling = true
 	change_state(state.falling)
 
@@ -70,8 +74,8 @@ func jump() -> void:
 func wall_jump() -> void:
 	wall_jump_timer.start()
 	fast_falling = true
-	velocity.y = -1 * jump_power * .75
-	velocity.x = -1 * direction * wall_jump_power
+	velocity.y += -1 * wall_jump_vert_power
+	velocity.x = -1 * direction * wall_jump_horz_power
 	change_state(state.falling)
 
 
@@ -118,10 +122,10 @@ func is_fast_wall_jumping() -> bool:
 
 func update_gravity(delta: float):
 	if current_state == state.sliding:
-		if velocity.y > 0:
-			velocity += get_gravity() * delta * slide_speed
+		if velocity.y >= 0:
+			velocity.y = slide_speed
 		if velocity.y < 0:
-			velocity += get_gravity() * delta / slide_speed
+			velocity += get_gravity() * delta * 4
 		
 	elif(fast_falling and velocity.y > 0):
 		velocity += get_gravity() * delta * fast_falling_speed
@@ -129,8 +133,7 @@ func update_gravity(delta: float):
 	else: 
 		velocity += get_gravity() * delta
 	
-	
-	
+	clampf(velocity.y, -max_y_velocity, max_y_velocity)
 
 
 func _physics_process(delta: float) -> void:
@@ -199,7 +202,7 @@ func _physics_process(delta: float) -> void:
 				change_state(state.sliding)
 			
 			if wall_jump_timer.time_left > 0:
-				velocity.x = move_toward(velocity.x, move_speed * sign(velocity.x), (wall_jump_power - move_speed) * delta / wall_jump_timer.wait_time)
+				velocity.x = move_toward(velocity.x, move_speed * sign(velocity.x), (wall_jump_horz_power - move_speed) * delta / wall_jump_timer.wait_time)
 			else:
 				handle_move()
 				
@@ -220,7 +223,7 @@ func _physics_process(delta: float) -> void:
 		state.rolling:
 			if is_on_wall() and velocity.x == 0:
 				velocity = Vector2(knockback_speed_x * last_direction * -1, knockback_speed_y)
-				stun_timer.wait_time = roll_timer.time_left
+				stun_timer.wait_time = concussion_curve.sample(roll_timer.time_left)
 				stun_timer.start()
 				change_state(state.stun)
 	
@@ -240,16 +243,14 @@ func _physics_process(delta: float) -> void:
 			
 			if is_on_floor():
 				change_state(state.idling)
-			
+		
 	
 	move_and_slide()
 
 
 func _on_coyote_timer_timeout() -> void:
 	coyote_active = false
-	print("coyote ended")
 
 
 func _on_jump_buffer_timer_timeout() -> void:
-	print("Jump buffer ended")
 	pass # Replace with function body.

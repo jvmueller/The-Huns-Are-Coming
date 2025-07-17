@@ -203,8 +203,9 @@ func _physics_process(delta: float) -> void:
 			else:
 				handle_move()
 				
-			if Input.is_action_just_pressed("roll"):
-				change_state(state.rolling)
+				if Input.is_action_just_pressed("roll"):
+					change_state(state.rolling)
+			
 				
 			if is_on_floor():
 				if jump_buffer_timer.time_left > 0:
@@ -219,6 +220,7 @@ func _physics_process(delta: float) -> void:
 		state.rolling:
 			if is_on_wall() and velocity.x == 0:
 				velocity = Vector2(knockback_speed_x * last_direction * -1, knockback_speed_y)
+				stun_timer.wait_time = roll_timer.time_left
 				stun_timer.start()
 				change_state(state.stun)
 	

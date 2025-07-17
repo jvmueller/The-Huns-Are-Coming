@@ -12,19 +12,26 @@ enum state {
 @onready var attack_timer: Timer = $AttackTimer
 @onready var roll_timer: Timer = $RollTimer
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
+@onready var coyote_timer: Timer = $CoyoteTimer
+@onready var jump_buffer_timer: Timer = $JumpBufferTimer
 
 var current_state: state
 var direction
 var fast_falling: bool
+var jump_was_pressed: bool
+var coyote_active: bool
 
-
-@export var move_speed: float = 450
+@export var move_speed: float = 600
 @export var jump_power: float = 600
-@export var wall_jump_power: float = 600
+@export var wall_jump_power: float = 800
 @export var slide_speed: float = 0.25
 @export var drag_acceleration: float = 15
 @export var walk_acceleration: float = 50
 @export var fast_falling_speed: float = 1.5
+
+
+
+
 
 func _ready() -> void:
 	current_state = state.falling
@@ -80,7 +87,7 @@ func print_state() -> void:
 
 func handle_move() -> void:
 	direction = Input.get_axis("left", "right")
-	if fast_wall_jumping():
+	if is_fast_wall_jumping():
 		if direction != sign(velocity.x):
 			velocity.x = move_toward(velocity.x, 0, drag_acceleration * .75)
 	else:
@@ -92,7 +99,7 @@ func handle_move() -> void:
 			velocity.x = move_toward(velocity.x, 0, drag_acceleration)
 
 
-func fast_wall_jumping() -> bool:
+func is_fast_wall_jumping() -> bool:
 	return abs(velocity.x) >= move_speed and current_state == state.falling
 
 
@@ -118,7 +125,10 @@ func _physics_process(delta: float) -> void:
 		
 		state.walking:
 			if not is_on_floor():
+				coyote_active = true
+				coyote_timer.start()
 				change_state(state.falling)
+				
 			
 			if Input.is_action_just_pressed("jump"):
 				jump()
@@ -129,6 +139,12 @@ func _physics_process(delta: float) -> void:
 				change_state(state.idling)
 			
 		state.falling:
+			if Input.is_action_just_pressed("jump"):
+				if coyote_active:
+					jump()
+				else:
+					jump_buffer_timer.start()
+			
 			if(fast_falling and velocity.y > 0):
 				velocity += get_gravity() * delta * fast_falling_speed
 			else: 
@@ -140,7 +156,10 @@ func _physics_process(delta: float) -> void:
 			handle_move()
 			
 			if is_on_floor():
-				change_state(state.idling)
+				if jump_buffer_timer.time_left > 0:
+					jump()
+				else:
+					change_state(state.idling)
 			
 		state.attacking:
 			if attack_timer.is_stopped():
@@ -165,3 +184,13 @@ func _physics_process(delta: float) -> void:
 				change_state(state.falling)
 	
 	move_and_slide()
+
+
+func _on_coyote_timer_timeout() -> void:
+	coyote_active = false
+	print("coyote ended")
+
+
+func _on_jump_buffer_timer_timeout() -> void:
+	print("Jump buffer ended")
+	pass # Replace with function body.

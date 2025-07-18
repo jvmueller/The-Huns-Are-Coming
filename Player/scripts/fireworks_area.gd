@@ -3,6 +3,7 @@ extends Area2D
 signal erase_tile(pos: Vector2)
 
 @onready var player: CharacterBody2D = $".."
+@onready var fireworks_audio: AudioStreamPlayer = $"../FireworksAudio"
 
 func _on_body_entered(body: Node2D) -> void:
 	
@@ -23,8 +24,10 @@ func handle_collision(level_tilemap: TileMapLayer, player_position: Vector2) -> 
 			
 			if tile_data: 
 				if tile_data.get_custom_data("name") == "firework":
+					fireworks_audio.play()
 					player.stun(1.25)
 					level_tilemap.erase_cell(check_tile_coords)
+				
 				elif tile_data.get_custom_data("name") == "goal":
 					GameManager.win_level()
 		

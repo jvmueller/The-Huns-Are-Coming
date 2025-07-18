@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://cqhi22h0pk084"]
+[gd_scene load_steps=25 format=3 uid="uid://cqhi22h0pk084"]
 
 [ext_resource type="Script" uid="uid://cno3f0fu3ihw6" path="res://Player/scripts/player.gd" id="1_wmpps"]
 [ext_resource type="Shape2D" uid="uid://bgjdtyxx5ifsj" path="res://Player/colliders/roll_collider.tres" id="3_ekj7i"]
@@ -9,8 +9,9 @@
 [ext_resource type="AudioStream" uid="uid://dcr6qhyj887tn" path="res://Audio/Jump.wav" id="7_7umw3"]
 [ext_resource type="AudioStream" uid="uid://c2ekyb1auvyeq" path="res://Audio/Land.wav" id="8_xty5l"]
 [ext_resource type="AudioStream" uid="uid://c3e1cieoshffi" path="res://Audio/Slide.wav" id="9_dwsv8"]
-[ext_resource type="AudioStream" uid="uid://cmljrwcfomya4" path="res://Audio/Walljump.wav" id="10_jkbpc"]
+[ext_resource type="AudioStream" uid="uid://doh6s88wbrit" path="res://Audio/Roll.wav" id="11_7umw3"]
 [ext_resource type="AudioStream" uid="uid://fcaxp8g55ytu" path="res://Audio/Fireworks.wav" id="11_s2lx4"]
+[ext_resource type="AudioStream" uid="uid://dwhx8yabfy85o" path="res://Audio/Stun.wav" id="12_xty5l"]
 
 [sub_resource type="Curve" id="Curve_wmpps"]
 _limits = [0.0, 0.7, 0.0, 0.5]
@@ -322,21 +323,31 @@ one_shot = true
 
 [node name="WalkAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_nshua")
+volume_db = -6.933
 
 [node name="JumpAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("7_7umw3")
+volume_db = -4.952
 
 [node name="LandAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("8_xty5l")
+volume_db = -8.914
 
 [node name="SlideAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("9_dwsv8")
-
-[node name="WallJumpAudio" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("10_jkbpc")
+volume_db = -3.748
 
 [node name="FireworksAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("11_s2lx4")
+volume_db = -5.621
+
+[node name="RollAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("11_7umw3")
+volume_db = -4.685
+
+[node name="StunAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("12_xty5l")
+volume_db = -7.495
 
 [connection signal="body_entered" from="HurtboxArea2D" to="HurtboxArea2D" method="_on_body_entered"]
 [connection signal="timeout" from="CoyoteTimer" to="." method="_on_coyote_timer_timeout"]

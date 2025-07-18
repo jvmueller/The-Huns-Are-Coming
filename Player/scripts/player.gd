@@ -23,8 +23,9 @@ enum state {
 @onready var jump_audio: AudioStreamPlayer = $JumpAudio
 @onready var land_audio: AudioStreamPlayer = $LandAudio
 @onready var slide_audio: AudioStreamPlayer = $SlideAudio
-@onready var wall_jump_audio: AudioStreamPlayer = $WallJumpAudio
 @onready var fireworks_audio: AudioStreamPlayer = $FireworksAudio
+@onready var stun_audio: AudioStreamPlayer = $StunAudio
+@onready var roll_audio: AudioStreamPlayer = $RollAudio
 
 
 var current_state: state
@@ -58,8 +59,7 @@ func _ready() -> void:
 	collision_shape_2d.shape = player_collider
 
 
-# Handles everything related to changing states
-# You could also move each state's setup into a separate function if you had a lot to do.
+#handles what happens on entering a state
 func change_state(new_state: state) -> void:
 	current_state = new_state
 	print_state()
@@ -93,6 +93,7 @@ func change_state(new_state: state) -> void:
 				animation_player.play("roll left")
 			
 			velocity.x = last_direction * roll_speed
+			roll_audio.play()
 			roll_timer.start()
 		
 		state.sliding:
@@ -105,16 +106,14 @@ func change_state(new_state: state) -> void:
 		
 		state.stun:
 			stop_all_sounds()
-			wall_jump_audio.play()
+			stun_audio.play()
 			animation_player.play("jump")
 
 
 func stop_all_sounds() -> void:
 	walk_audio.stop()
-	#jump_audio.stop()
-	#land_audio.stop()
 	slide_audio.stop()
-	#wall_jump_audio.stop()
+	roll_audio.stop()
 
 #specific state change into falling induced by the jump action
 func jump() -> void:
@@ -212,6 +211,7 @@ func update_gravity(delta: float):
 	clampf(velocity.y, -max_y_velocity, max_y_velocity)
 
 
+#handles what happens on a states update
 func _physics_process(delta: float) -> void:
 	update_gravity(delta)
 	
@@ -302,6 +302,7 @@ func _physics_process(delta: float) -> void:
 	
 			if roll_timer.is_stopped():
 				collision_shape_2d.shape = player_collider
+				roll_audio.stop()
 				change_state(state.walking)
 			else:
 				velocity.x = move_toward(velocity.x, move_speed * last_direction, (roll_speed - move_speed) * delta / roll_timer.wait_time)

@@ -116,6 +116,14 @@ func wall_jump() -> void:
 	change_state(state.falling)
 
 
+func stun(time: float) -> void:
+	velocity = Vector2(knockback_speed_x * last_direction * -1, knockback_speed_y)
+	stun_timer.wait_time = time
+	stun_timer.start()
+	collision_shape_2d.shape = player_collider
+	change_state(state.stun)
+
+
 func print_state() -> void:
 	match current_state:
 		state.idling:
@@ -267,11 +275,7 @@ func _physics_process(delta: float) -> void:
 			
 		state.rolling:
 			if is_on_wall() and velocity.x == 0:
-				velocity = Vector2(knockback_speed_x * last_direction * -1, knockback_speed_y)
-				stun_timer.wait_time = concussion_curve.sample(roll_timer.time_left)
-				stun_timer.start()
-				collision_shape_2d.shape = player_collider
-				change_state(state.stun)
+				stun(concussion_curve.sample(roll_timer.time_left))
 	
 			if roll_timer.is_stopped():
 				collision_shape_2d.shape = player_collider

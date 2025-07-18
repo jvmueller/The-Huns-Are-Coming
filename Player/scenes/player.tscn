@@ -4,7 +4,7 @@
 [ext_resource type="Shape2D" uid="uid://bgjdtyxx5ifsj" path="res://Player/colliders/roll_collider.tres" id="3_ekj7i"]
 [ext_resource type="Shape2D" uid="uid://b5u0ifpxwcec0" path="res://Player/colliders/player_collider.tres" id="3_xr54b"]
 [ext_resource type="Texture2D" uid="uid://dg6ovs0facwo7" path="res://Player/sprites/(OLD) Character Sprite.PNG" id="4_bed1q"]
-[ext_resource type="Script" uid="uid://8eea73wlkd0f" path="res://Player/scenes/hurtbox_area_2d.gd" id="5_bed1q"]
+[ext_resource type="Script" uid="uid://8eea73wlkd0f" path="res://Player/scripts/fireworks_area.gd" id="5_bed1q"]
 
 [sub_resource type="Curve" id="Curve_wmpps"]
 _limits = [0.0, 0.7, 0.0, 0.5]
@@ -26,7 +26,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [1.5708]
+"values": [0.0]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -260,6 +260,7 @@ slide_speed = 2500.0
 drag_acceleration = 125.0
 walk_acceleration = 750.0
 slide_acceleration = 750.0
+fast_falling_speed = 1.75
 knockback_speed_x = 3000.0
 knockback_speed_y = -3000.0
 max_y_velocity = 10000.0
@@ -268,7 +269,6 @@ player_collider = ExtResource("3_xr54b")
 roll_collider = ExtResource("3_ekj7i")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-rotation = 1.5708
 texture = ExtResource("4_bed1q")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -314,7 +314,11 @@ one_shot = true
 wait_time = 0.3
 one_shot = true
 
-[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="AudioStreamPlayer2" type="AudioStreamPlayer" parent="."]
+
+[node name="AudioStreamPlayer3" type="AudioStreamPlayer" parent="."]
 
 [connection signal="body_entered" from="HurtboxArea2D" to="HurtboxArea2D" method="_on_body_entered"]
 [connection signal="timeout" from="CoyoteTimer" to="." method="_on_coyote_timer_timeout"]

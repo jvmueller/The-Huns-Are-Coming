@@ -1,10 +1,16 @@
-[gd_scene load_steps=18 format=3 uid="uid://cqhi22h0pk084"]
+[gd_scene load_steps=24 format=3 uid="uid://cqhi22h0pk084"]
 
 [ext_resource type="Script" uid="uid://cno3f0fu3ihw6" path="res://Player/scripts/player.gd" id="1_wmpps"]
 [ext_resource type="Shape2D" uid="uid://bgjdtyxx5ifsj" path="res://Player/colliders/roll_collider.tres" id="3_ekj7i"]
 [ext_resource type="Shape2D" uid="uid://b5u0ifpxwcec0" path="res://Player/colliders/player_collider.tres" id="3_xr54b"]
 [ext_resource type="Texture2D" uid="uid://dg6ovs0facwo7" path="res://Player/sprites/(OLD) Character Sprite.PNG" id="4_bed1q"]
 [ext_resource type="Script" uid="uid://8eea73wlkd0f" path="res://Player/scripts/fireworks_area.gd" id="5_bed1q"]
+[ext_resource type="AudioStream" uid="uid://cac4tot7etlfr" path="res://Audio/Walk.wav" id="6_nshua"]
+[ext_resource type="AudioStream" uid="uid://dcr6qhyj887tn" path="res://Audio/Jump.wav" id="7_7umw3"]
+[ext_resource type="AudioStream" uid="uid://c2ekyb1auvyeq" path="res://Audio/Land.wav" id="8_xty5l"]
+[ext_resource type="AudioStream" uid="uid://c3e1cieoshffi" path="res://Audio/Slide.wav" id="9_dwsv8"]
+[ext_resource type="AudioStream" uid="uid://cmljrwcfomya4" path="res://Audio/Walljump.wav" id="10_jkbpc"]
+[ext_resource type="AudioStream" uid="uid://fcaxp8g55ytu" path="res://Audio/Fireworks.wav" id="11_s2lx4"]
 
 [sub_resource type="Curve" id="Curve_wmpps"]
 _limits = [0.0, 0.7, 0.0, 0.5]
@@ -314,11 +320,23 @@ one_shot = true
 wait_time = 0.3
 one_shot = true
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+[node name="WalkAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_nshua")
 
-[node name="AudioStreamPlayer2" type="AudioStreamPlayer" parent="."]
+[node name="JumpAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("7_7umw3")
 
-[node name="AudioStreamPlayer3" type="AudioStreamPlayer" parent="."]
+[node name="LandAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("8_xty5l")
+
+[node name="SlideAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_dwsv8")
+
+[node name="WallJumpAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("10_jkbpc")
+
+[node name="FireworksAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("11_s2lx4")
 
 [connection signal="body_entered" from="HurtboxArea2D" to="HurtboxArea2D" method="_on_body_entered"]
 [connection signal="timeout" from="CoyoteTimer" to="." method="_on_coyote_timer_timeout"]

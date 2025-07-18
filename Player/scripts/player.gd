@@ -19,6 +19,12 @@ enum state {
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 @onready var sprite_2d: Sprite2D = $Sprite2D
 @onready var collision_shape_2d: CollisionShape2D = $CollisionShape2D
+@onready var walk_audio: AudioStreamPlayer = $WalkAudio
+@onready var jump_audio: AudioStreamPlayer = $JumpAudio
+@onready var land_audio: AudioStreamPlayer = $LandAudio
+@onready var slide_audio: AudioStreamPlayer = $SlideAudio
+@onready var wall_jump_audio: AudioStreamPlayer = $WallJumpAudio
+@onready var fireworks_audio: AudioStreamPlayer = $FireworksAudio
 
 
 var current_state: state
@@ -59,13 +65,16 @@ func change_state(new_state: state) -> void:
 	print_state()
 	match current_state:
 		state.idling:
+			stop_all_sounds()
 			fast_falling = false
 			animation_player.play("idle")
 		
 		state.walking:
 			animation_player.play("walk")
 		
+		
 		state.falling:
+			stop_all_sounds()
 			print(animation_player.current_animation)
 			if animation_player.current_animation != "jump":
 				animation_player.play("fall")
@@ -74,8 +83,8 @@ func change_state(new_state: state) -> void:
 			attack_timer.start()
 		
 		state.rolling:
+			stop_all_sounds()
 			velocity.y = clampf(velocity.y, -jump_power / 2, max_y_velocity)
-			
 			collision_shape_2d.shape = roll_collider
 			
 			if last_direction == 1:
@@ -87,6 +96,7 @@ func change_state(new_state: state) -> void:
 			roll_timer.start()
 		
 		state.sliding:
+			slide_audio.play()
 			fast_falling = false
 			if last_direction == 1:
 				animation_player.play("slide right")
@@ -94,12 +104,22 @@ func change_state(new_state: state) -> void:
 				animation_player.play("slide left")
 		
 		state.stun:
+			stop_all_sounds()
+			wall_jump_audio.play()
 			animation_player.play("jump")
 
+
+func stop_all_sounds() -> void:
+	walk_audio.stop()
+	#jump_audio.stop()
+	#land_audio.stop()
+	slide_audio.stop()
+	#wall_jump_audio.stop()
 
 #specific state change into falling induced by the jump action
 func jump() -> void:
 	animation_player.play("jump")
+	jump_audio.play()
 	velocity.y += -1 * jump_power
 	velocity.y = clampf(velocity.y,-1 * jump_power, 0)
 	fast_falling = true
@@ -108,6 +128,7 @@ func jump() -> void:
 
 func wall_jump() -> void:
 	animation_player.play("jump")
+	jump_audio.play()
 	wall_jump_timer.start()
 	fast_falling = true
 	velocity.y = -1 * wall_jump_vert_power
@@ -120,7 +141,7 @@ func stun(time: float) -> void:
 	velocity = Vector2(knockback_speed_x * last_direction * -1, knockback_speed_y)
 	stun_timer.wait_time = time
 	stun_timer.start()
-	collision_shape_2d.shape = player_collider
+	collision_shape_2d.set_deferred("shape",player_collider)
 	change_state(state.stun)
 
 
@@ -156,12 +177,13 @@ func handle_move() -> void:
 		
 	else:
 		if direction: #input
+			if current_state == state.walking and not walk_audio.playing:
+				walk_audio.play()
 			velocity.x = move_toward(velocity.x, direction * move_speed, walk_acceleration)
 		elif current_state == state.walking:#no input and on ground
 			velocity.x = move_toward(velocity.x, 0, walk_acceleration)
 		else: #no input in air
 			velocity.x = move_toward(velocity.x, 0, drag_acceleration)
-			
 
 
 func flip_sprite() -> void:
@@ -264,6 +286,7 @@ func _physics_process(delta: float) -> void:
 			
 				
 			if is_on_floor():
+				land_audio.play()
 				if jump_buffer_timer.time_left > 0:
 					jump()
 				else:

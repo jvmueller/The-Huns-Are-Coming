@@ -10,12 +10,12 @@ horz_dist = 10000.0
 vert_variance = 4000.0
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(0.3, 0.3)
+zoom = Vector2(0.025, 0.025)
 position_smoothing_enabled = true
 position_smoothing_speed = 3.0
 
 [node name="Timer" type="Timer" parent="."]
-wait_time = 15.0
+wait_time = 30.0
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 

@@ -6,3 +6,6 @@ func lose() -> void:
 
 func win() -> void:
 	get_tree().change_scene_to_file("res://Menus/scenes/win_screen.tscn")
+
+func win_level() -> void:
+	print("signal fire lit!")

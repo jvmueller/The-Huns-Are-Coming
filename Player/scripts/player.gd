@@ -61,15 +61,21 @@ func change_state(new_state: state) -> void:
 		state.idling:
 			fast_falling = false
 			animation_player.play("idle")
+		
 		state.walking:
 			animation_player.play("walk")
+		
 		state.falling:
 			print(animation_player.current_animation)
 			if animation_player.current_animation != "jump":
 				animation_player.play("fall")
+		
 		state.attacking:
 			attack_timer.start()
+		
 		state.rolling:
+			velocity.y = clampf(velocity.y, -jump_power / 2, max_y_velocity)
+			
 			collision_shape_2d.shape = roll_collider
 			
 			if last_direction == 1:
@@ -79,12 +85,14 @@ func change_state(new_state: state) -> void:
 			
 			velocity.x = last_direction * roll_speed
 			roll_timer.start()
+		
 		state.sliding:
 			fast_falling = false
 			if last_direction == 1:
 				animation_player.play("slide right")
 			else:
 				animation_player.play("slide left")
+		
 		state.stun:
 			animation_player.play("jump")
 
@@ -102,8 +110,8 @@ func wall_jump() -> void:
 	animation_player.play("jump")
 	wall_jump_timer.start()
 	fast_falling = true
-	velocity.y += -1 * wall_jump_vert_power
-	velocity.y = clampf(velocity.y,-1 * (wall_jump_vert_power - slide_speed), 0)
+	velocity.y = -1 * wall_jump_vert_power
+	#velocity.y = clampf(velocity.y,-1 * (wall_jump_vert_power - slide_speed),0)
 	velocity.x = -1 * direction * wall_jump_horz_power
 	change_state(state.falling)
 
@@ -130,7 +138,7 @@ func handle_move() -> void:
 	direction = Input.get_axis("left", "right")
 	
 	if direction:
-		last_direction = direction
+		last_direction = sign(direction)
 		if current_state == state.idling:
 			change_state(state.walking)
 	
@@ -142,16 +150,17 @@ func handle_move() -> void:
 		if direction: #input
 			velocity.x = move_toward(velocity.x, direction * move_speed, walk_acceleration)
 		elif current_state == state.walking:#no input and on ground
-			velocity.x = move_toward(velocity.x, 0, move_speed)
+			velocity.x = move_toward(velocity.x, 0, walk_acceleration)
 		else: #no input in air
 			velocity.x = move_toward(velocity.x, 0, drag_acceleration)
+			
 
 
 func flip_sprite() -> void:
 	if direction == 1:
-		sprite_2d.flip_h = false
-	elif direction == -1:
 		sprite_2d.flip_h = true
+	elif direction == -1:
+		sprite_2d.flip_h = false
 
 func is_fast_wall_jumping() -> bool:
 	return abs(velocity.x) >= move_speed and current_state == state.falling

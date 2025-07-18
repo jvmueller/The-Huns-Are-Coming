@@ -1,14 +1,18 @@
-[gd_scene load_steps=16 format=3 uid="uid://cqhi22h0pk084"]
+[gd_scene load_steps=18 format=3 uid="uid://cqhi22h0pk084"]
 
 [ext_resource type="Script" uid="uid://cno3f0fu3ihw6" path="res://Player/scripts/player.gd" id="1_wmpps"]
-[ext_resource type="Texture2D" uid="uid://b5e15o12j2wkx" path="res://Player/sprites/icon.svg" id="2_xr54b"]
 [ext_resource type="Shape2D" uid="uid://bgjdtyxx5ifsj" path="res://Player/colliders/roll_collider.tres" id="3_ekj7i"]
 [ext_resource type="Shape2D" uid="uid://b5u0ifpxwcec0" path="res://Player/colliders/player_collider.tres" id="3_xr54b"]
+[ext_resource type="Texture2D" uid="uid://dg6ovs0facwo7" path="res://Player/sprites/(OLD) Character Sprite.PNG" id="4_bed1q"]
+[ext_resource type="Script" uid="uid://8eea73wlkd0f" path="res://Player/scenes/hurtbox_area_2d.gd" id="5_bed1q"]
 
 [sub_resource type="Curve" id="Curve_wmpps"]
 _limits = [0.0, 0.7, 0.0, 0.5]
 _data = [Vector2(0, 0.047191), 0.0, 0.0, 0, 0, Vector2(0.375, 0.503371), 3.69662, 3.69662, 0, 0, Vector2(0.5, 0.7), 0.0642894, 0.0, 0, 0]
 point_count = 3
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_bed1q"]
+radius = 62.2013
 
 [sub_resource type="Animation" id="Animation_wmpps"]
 length = 0.001
@@ -244,18 +248,47 @@ _data = {
 }
 
 [node name="player" type="CharacterBody2D"]
+scale = Vector2(1.5, 1.5)
 collision_layer = 2
 script = ExtResource("1_wmpps")
+move_speed = 7000.0
+roll_speed = 21000.0
+jump_power = 9000.0
+wall_jump_horz_power = 7000.0
+wall_jump_vert_power = 7000.0
+slide_speed = 2500.0
+drag_acceleration = 125.0
+walk_acceleration = 750.0
+slide_acceleration = 750.0
+knockback_speed_x = 3000.0
+knockback_speed_y = -3000.0
+max_y_velocity = 10000.0
 concussion_curve = SubResource("Curve_wmpps")
 player_collider = ExtResource("3_xr54b")
 roll_collider = ExtResource("3_ekj7i")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 rotation = 1.5708
-texture = ExtResource("2_xr54b")
+texture = ExtResource("4_bed1q")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = ExtResource("3_ekj7i")
+scale = Vector2(0.999999, 0.999999)
+shape = ExtResource("3_xr54b")
+
+[node name="HurtboxArea2D" type="Area2D" parent="."]
+visible = false
+collision_layer = 2
+collision_mask = 12
+script = ExtResource("5_bed1q")
+
+[node name="HurtboxCollider" type="CollisionShape2D" parent="HurtboxArea2D"]
+shape = SubResource("CircleShape2D_bed1q")
+debug_color = Color(0.907647, 0.000120134, 0.739352, 0.42)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_wmpps")
+}
 
 [node name="AttackTimer" type="Timer" parent="."]
 wait_time = 0.5
@@ -269,22 +302,20 @@ one_shot = true
 wait_time = 0.2
 one_shot = true
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_wmpps")
-}
-
 [node name="JumpBufferTimer" type="Timer" parent="."]
 wait_time = 0.2
 one_shot = true
 
 [node name="WallJumpTimer" type="Timer" parent="."]
-wait_time = 0.2
+wait_time = 0.25
 one_shot = true
 
 [node name="StunTimer" type="Timer" parent="."]
 wait_time = 0.3
 one_shot = true
 
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+
+[connection signal="body_entered" from="HurtboxArea2D" to="HurtboxArea2D" method="_on_body_entered"]
 [connection signal="timeout" from="CoyoteTimer" to="." method="_on_coyote_timer_timeout"]
 [connection signal="timeout" from="JumpBufferTimer" to="." method="_on_jump_buffer_timer_timeout"]

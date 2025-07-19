@@ -7,8 +7,8 @@
 
 [node name="LevelManager" type="Node" parent="."]
 script = ExtResource("1_ds5t7")
-horz_dist = 10000.0
-vert_variance = 4000.0
+horz_dist = 200000.0
+vert_variance = 50000.0
 
 [node name="Camera2D" type="Camera2D" parent="."]
 zoom = Vector2(0.015, 0.015)

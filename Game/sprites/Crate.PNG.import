@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b6hmw6m3hiufp"
-path="res://.godot/imported/Firework.PNG-058a891b70fdc7c0602b81cb876fad26.ctex"
+uid="uid://bmqhsdcyp6q4t"
+path="res://.godot/imported/Crate.PNG-7645c76c9be8c330757d63bcc22da4fd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Game/sprites/Firework.PNG"
-dest_files=["res://.godot/imported/Firework.PNG-058a891b70fdc7c0602b81cb876fad26.ctex"]
+source_file="res://Game/sprites/Crate.PNG"
+dest_files=["res://.godot/imported/Crate.PNG-7645c76c9be8c330757d63bcc22da4fd.ctex"]
 
 [params]
 

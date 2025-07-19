@@ -26,6 +26,7 @@ enum state {
 @onready var fireworks_audio: AudioStreamPlayer = $FireworksAudio
 @onready var stun_audio: AudioStreamPlayer = $StunAudio
 @onready var roll_audio: AudioStreamPlayer = $RollAudio
+@onready var hurtbox: Area2D = $Hurtbox
 
 
 var current_state: state
@@ -33,6 +34,7 @@ var direction
 var last_direction = 1
 var fast_falling: bool
 var coyote_active: bool
+var player_frozen: bool = false
 
 @export var move_speed: float = 650
 @export var roll_speed: float = 1200
@@ -57,6 +59,7 @@ var coyote_active: bool
 func _ready() -> void:
 	current_state = state.falling
 	collision_shape_2d.shape = player_collider
+	GameManager.connect("lock_player",lock_movement)
 
 
 #handles what happens on entering a state
@@ -84,8 +87,10 @@ func change_state(new_state: state) -> void:
 		
 		state.rolling:
 			stop_all_sounds()
+			hurtbox.set_roll_collider(true)
+			collision_shape_2d.set_deferred("shape",roll_collider)
+			
 			velocity.y = clampf(velocity.y, -jump_power / 2, max_y_velocity)
-			collision_shape_2d.shape = roll_collider
 			
 			if last_direction == 1:
 				animation_player.play("roll right")
@@ -93,6 +98,7 @@ func change_state(new_state: state) -> void:
 				animation_player.play("roll left")
 			
 			velocity.x = last_direction * roll_speed
+			
 			roll_audio.play()
 			roll_timer.start()
 		
@@ -114,6 +120,11 @@ func stop_all_sounds() -> void:
 	walk_audio.stop()
 	slide_audio.stop()
 	roll_audio.stop()
+
+
+func lock_movement() -> void:
+	player_frozen = true
+
 
 #specific state change into falling induced by the jump action
 func jump() -> void:
@@ -140,7 +151,6 @@ func stun(time: float) -> void:
 	velocity = Vector2(knockback_speed_x * last_direction * -1, knockback_speed_y)
 	stun_timer.wait_time = time
 	stun_timer.start()
-	collision_shape_2d.set_deferred("shape",player_collider)
 	change_state(state.stun)
 
 
@@ -218,108 +228,114 @@ func _physics_process(delta: float) -> void:
 	flip_sprite()
 	
 	#state update behavior
-	match current_state:
-		state.idling:
-			if not is_on_floor():
-				change_state(state.falling)
-			elif abs(velocity.x) > 0:
-				change_state(state.walking)
-			
-			handle_move()
-			
-			if Input.is_action_just_pressed("jump"):
-				jump()
-		
-			if Input.is_action_just_pressed("roll"):
-				change_state(state.rolling)
-			
-			if Input.is_action_just_pressed("attack"):
-				change_state(state.attacking)
-		
-		state.stun:
-			if is_on_floor():
-				velocity.x = 0
-	
-			if stun_timer.time_left == 0:
-				change_state(state.idling)
-		
-		state.walking:
-			if not is_on_floor():
-				coyote_active = true
-				coyote_timer.start()
-				change_state(state.falling)
+	if player_frozen == false:
+		match current_state:
+			state.idling:
+				if not is_on_floor():
+					change_state(state.falling)
+				elif abs(velocity.x) > 0:
+					change_state(state.walking)
 				
-			
-			if Input.is_action_just_pressed("jump"):
-				jump()
-			
-			handle_move()
-			
-			if velocity.x == 0:
-				change_state(state.idling)
-			
-			if Input.is_action_just_pressed("roll"):
-				change_state(state.rolling)
-			
-			if Input.is_action_just_pressed("attack"):
-				change_state(state.attacking)
-			
-		state.falling:
-			if Input.is_action_just_pressed("jump"):
-				if coyote_active:
-					jump()
-				else:
-					jump_buffer_timer.start()
-			
-			
-			
-			if is_on_wall():
-				change_state(state.sliding)
-			
-			if wall_jump_timer.time_left > 0:
-				velocity.x = move_toward(velocity.x, move_speed * sign(velocity.x), (wall_jump_horz_power - move_speed) * delta / wall_jump_timer.wait_time)
-			else:
 				handle_move()
+				
+				if Input.is_action_just_pressed("jump"):
+					jump()
+			
+				if Input.is_action_just_pressed("roll"):
+					change_state(state.rolling)
+				
+				if Input.is_action_just_pressed("attack"):
+					change_state(state.attacking)
+			
+			state.stun:
+				if is_on_floor():
+					velocity.x = 0
+		
+				if stun_timer.time_left == 0:
+					#lowkey just changes these for "just in case"
+					collision_shape_2d.set_deferred("shape",player_collider)
+					hurtbox.set_roll_collider(false)
+					change_state(state.idling)
+			state.walking:
+				if not is_on_floor():
+					coyote_active = true
+					coyote_timer.start()
+					change_state(state.falling)
+					
+				
+				if Input.is_action_just_pressed("jump"):
+					jump()
+				
+				handle_move()
+				
+				if velocity.x == 0:
+					change_state(state.idling)
 				
 				if Input.is_action_just_pressed("roll"):
 					change_state(state.rolling)
-			
 				
-			if is_on_floor():
-				land_audio.play()
-				if jump_buffer_timer.time_left > 0:
-					jump()
+				if Input.is_action_just_pressed("attack"):
+					change_state(state.attacking)
+				
+			state.falling:
+				if Input.is_action_just_pressed("jump"):
+					if coyote_active:
+						jump()
+					else:
+						jump_buffer_timer.start()
+				
+				if is_on_wall():
+					change_state(state.sliding)
+				
+				if wall_jump_timer.time_left > 0:
+					velocity.x = move_toward(velocity.x, move_speed * sign(velocity.x), (wall_jump_horz_power - move_speed) * delta / wall_jump_timer.wait_time)
 				else:
+					handle_move()
+					
+					if Input.is_action_just_pressed("roll"):
+						change_state(state.rolling)
+					
+				if is_on_floor():
+					land_audio.play()
+					if jump_buffer_timer.time_left > 0:
+						jump()
+					else:
+						change_state(state.idling)
+				
+			state.attacking:
+				if attack_timer.is_stopped():
 					change_state(state.idling)
-			
-		state.attacking:
-			if attack_timer.is_stopped():
-				change_state(state.idling)
-			
-		state.rolling:
-			if is_on_wall() and velocity.x == 0:
-				stun(concussion_curve.sample(roll_timer.time_left))
-	
-			if roll_timer.is_stopped():
-				collision_shape_2d.shape = player_collider
-				roll_audio.stop()
-				change_state(state.walking)
-			else:
-				velocity.x = move_toward(velocity.x, move_speed * last_direction, (roll_speed - move_speed) * delta / roll_timer.wait_time)
+				
+			state.rolling:
+				if is_on_wall() and velocity.x == 0:
+					hurtbox.set_roll_collider(false)
+					collision_shape_2d.set_deferred("shape",player_collider)
+					stun(concussion_curve.sample(roll_timer.time_left))
 		
-		state.sliding:
-			handle_move()
+				if roll_timer.is_stopped():
+					hurtbox.set_roll_collider(false)
+					collision_shape_2d.set_deferred("shape",player_collider)
+					roll_audio.stop()
+					change_state(state.walking)
+				else:
+					velocity.x = move_toward(velocity.x, move_speed * last_direction, (roll_speed - move_speed) * delta / roll_timer.wait_time)
 			
-			if is_on_wall_only() and Input.is_action_just_pressed("jump"):
-				wall_jump()
+			state.sliding:
+				handle_move()
+				
+				if is_on_wall_only() and Input.is_action_just_pressed("jump"):
+					wall_jump()
+				
+				if not is_on_wall():
+					change_state(state.falling)
+				
+				if is_on_floor():
+					change_state(state.idling)
+					
+	else:
+		velocity.x = 0
+		change_state(state.idling)
 			
-			if not is_on_wall():
-				change_state(state.falling)
-			
-			if is_on_floor():
-				change_state(state.idling)
-		
-	
 	move_and_slide()
 
 

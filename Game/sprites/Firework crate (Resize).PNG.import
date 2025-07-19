@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bv8sib8nee1ig"
-path="res://.godot/imported/Level Tiles (Under).PNG-2f4de2807b2322f17cbf1b2107e55a1d.ctex"
+uid="uid://bd40g07upxsrh"
+path="res://.godot/imported/Firework crate (Resize).PNG-cee8f66837194ff40582e74591cddc36.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Game/sprites/Level Tiles (Under).PNG"
-dest_files=["res://.godot/imported/Level Tiles (Under).PNG-2f4de2807b2322f17cbf1b2107e55a1d.ctex"]
+source_file="res://Game/sprites/Firework crate (Resize).PNG"
+dest_files=["res://.godot/imported/Firework crate (Resize).PNG-cee8f66837194ff40582e74591cddc36.ctex"]
 
 [params]
 

@@ -30,11 +30,31 @@ func handle_destruction(level_tilemap: TileMapLayer, destruction_position: Vecto
 	var actual_world_pos = level_tilemap.to_global(level_tilemap.map_to_local(tile_coords))
 	GameManager.show_debug(actual_world_pos)
 	
-	#print("tile_coords: ",tile_coords)
 	var tile_data = level_tilemap.get_cell_tile_data(tile_coords)
-	#print(tile_data == null)
 	
 	if tile_data:
 		if tile_data.get_custom_data("name") == "destructible":
 			destroy_audio.play()
 			level_tilemap.erase_cell(tile_coords)
+		elif tile_data.get_custom_data("name") == "table":
+			destroy_audio.play()
+			level_tilemap.erase_cell(tile_coords)
+			for x in [-2,-1,0,1,2]:
+				var table_tile_coords = tile_coords + Vector2i(x,0)
+				var table_tile_data = level_tilemap.get_cell_tile_data(table_tile_coords)
+				if table_tile_data:
+					if  table_tile_data.get_custom_data("name") == "table":
+						destroy_audio.play()
+						level_tilemap.erase_cell(table_tile_coords)
+
+
+		elif tile_data.get_custom_data("name") == "door":
+			destroy_audio.play()
+			level_tilemap.erase_cell(tile_coords)
+			for y in [-1,0,1]:
+				var door_tile_coords = tile_coords + Vector2i(0,y)
+				var door_tile_data = level_tilemap.get_cell_tile_data(door_tile_coords)
+				if door_tile_data:
+					if door_tile_data.get_custom_data("name") == "door":
+						destroy_audio.play()
+						level_tilemap.erase_cell(door_tile_coords)

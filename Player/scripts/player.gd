@@ -26,6 +26,7 @@ enum state {
 @onready var fireworks_audio: AudioStreamPlayer = $FireworksAudio
 @onready var stun_audio: AudioStreamPlayer = $StunAudio
 @onready var roll_audio: AudioStreamPlayer = $RollAudio
+@onready var wall_jump_audio: AudioStreamPlayer = $WallJumpAudio
 @onready var hurtbox: Area2D = $Hurtbox
 @onready var hitbox: Area2D = $Sprite2D/Hitbox
 
@@ -82,7 +83,9 @@ func change_state(new_state: state) -> void:
 				animation_player.play("fall")
 		
 		state.attacking:
+			animation_player.play("attack")
 			attack_timer.start()
+			wall_jump_audio.play()
 			hitbox.enable_attack_hitbox()
 			
 		
@@ -114,7 +117,7 @@ func change_state(new_state: state) -> void:
 		state.stun:
 			stop_all_sounds()
 			stun_audio.play()
-			animation_player.play("jump")
+			animation_player.play("stun")
 
 
 func stop_all_sounds() -> void:
@@ -309,6 +312,11 @@ func _physics_process(delta: float) -> void:
 						change_state(state.idling)
 				
 			state.attacking:
+				if is_on_floor():
+					velocity.x = move_toward(velocity.x,0,walk_acceleration)
+				else:
+					velocity.x = move_toward(velocity.x,0,drag_acceleration)
+			
 				if attack_timer.is_stopped():
 					hitbox.disable_attack_hitbox()
 					change_state(state.idling)

@@ -3,9 +3,11 @@ extends Area2D
 @onready var player: CharacterBody2D = $".."
 @onready var fireworks_audio: AudioStreamPlayer = $"../FireworksAudio"
 @onready var hurtbox_collider: CollisionShape2D = $HurtboxCollider
+@onready var destroy_audio: AudioStreamPlayer = $"../DestroyAudio"
 
 @export var player_collider: CapsuleShape2D
 @export var roll_collider: CapsuleShape2D
+
 
 func _ready() -> void:
 	set_roll_collider(false)
@@ -29,9 +31,9 @@ func handle_collision(level_tilemap: TileMapLayer, player_position: Vector2) -> 
 	print("tile coords: ", tile_coords)
 	
 	#checks all tile coordinates that are neighboring the player's position for fireworks
-	for x in [-1,0,1]:
-		for y in [-1,0,1]:
-			var check_tile_coords = tile_coords + Vector2i(x,y)
+	for col in [-1,0,1]:
+		for row in [-1,0,1]:
+			var check_tile_coords = tile_coords + Vector2i(col,row)
 			var tile_data = level_tilemap.get_cell_tile_data(check_tile_coords)
 			
 			if tile_data: 
@@ -39,6 +41,34 @@ func handle_collision(level_tilemap: TileMapLayer, player_position: Vector2) -> 
 					fireworks_audio.play()
 					player.stun(1.25)
 					level_tilemap.erase_cell(check_tile_coords)
+					#destroys all destructible tiles surrounding the fireworks
+					for x in [-1,0,1]:
+						for y in [-1,0,1]:
+							var blast_tile_coords = check_tile_coords + Vector2i(x,y)
+							var blast_tile_data = level_tilemap.get_cell_tile_data(blast_tile_coords)
+							if blast_tile_data:
+								if blast_tile_data.get_custom_data("name") == "destructible":
+									destroy_audio.play()
+									level_tilemap.erase_cell(blast_tile_coords)
+								elif tile_data.get_custom_data("name") == "table":
+									destroy_audio.play()
+									level_tilemap.erase_cell(tile_coords)
+									for i in [-2,-1,0,1,2]:
+										var table_tile_coords = tile_coords + Vector2i(i,0)
+										var table_tile_data = level_tilemap.get_cell_tile_data(table_tile_coords)
+										if table_tile_data:
+											if  table_tile_data.get_custom_data("name") == "table":
+												destroy_audio.play()
+												level_tilemap.erase_cell(table_tile_coords)
+
+								elif tile_data.get_custom_data("name") == "door":
+									destroy_audio.play()
+									level_tilemap.erase_cell(tile_coords)
+									for i in [-1,0,1]:
+										var door_tile_coords = tile_coords + Vector2i(0,i)
+										var door_tile_data = level_tilemap.get_cell_tile_data(door_tile_coords)
+										if door_tile_data:
+											if door_tile_data.get_custom_data("name") == "door":
+												destroy_audio.play()
+												level_tilemap.erase_cell(door_tile_coords)
 				
-				elif tile_data.get_custom_data("name") == "goal":
-					GameManager.win_level()

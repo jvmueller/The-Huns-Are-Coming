@@ -11,22 +11,10 @@ script = ExtResource("1_ds5t7")
 horz_dist = 200000.0
 vert_variance = 50000.0
 
-[node name="debug" type="Sprite2D" parent="."]
-visible = false
-z_index = 10
-scale = Vector2(10, 10)
-texture = ExtResource("3_vc2ns")
-
 [node name="Camera2D" type="Camera2D" parent="."]
 zoom = Vector2(0.02, 0.02)
 position_smoothing_enabled = true
 position_smoothing_speed = 3.0
-
-[node name="GameMusic" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("2_7475e")
-volume_db = -20.0
-autoplay = true
-parameters/looping = true
 
 [node name="Timer" type="Timer" parent="."]
 wait_time = 30.0
@@ -41,3 +29,12 @@ offset_bottom = 40.0
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "null"
+
+[node name="GameMusic" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_7475e")
+volume_db = -20.0
+autoplay = true
+parameters/looping = true
+
+[node name="debug" type="Sprite2D" parent="."]
+texture = ExtResource("3_vc2ns")

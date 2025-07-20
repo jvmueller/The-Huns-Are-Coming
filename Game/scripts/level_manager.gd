@@ -1,9 +1,9 @@
 extends Node
 
 @export var room_scenes = [
-	preload("res://Game/scenes/level scenes/room_1.tscn"),
-	#preload ("res://Game/scenes/level scenes/room_2.tscn"),
-	#preload ("res://Game/scenes/level scenes/room_3.tscn")
+	preload("res://Game/scenes/level scenes/tutorial.tscn"),
+	preload ("res://Game/scenes/level scenes/room_1.tscn"),
+	#preload ("res://Game/scenes/level scenes/room_2.tscn")
 ]
 @export var horz_dist: float
 @export var vert_variance: float
@@ -11,6 +11,7 @@ extends Node
 @onready var camera_2d: Camera2D = $"../Camera2D"
 @onready var timer_label: Label = $"../CanvasLayer/VBoxContainer/TimerLabel"
 @onready var timer: Timer = $"../Timer"
+@onready var debug: Sprite2D = $"../debug"
 
 var current_room_index: int = -1
 var current_room_position: Vector2 = Vector2(0,0)
@@ -21,6 +22,7 @@ var old_room_instance: Node2D
 func _ready() -> void:
 	move_to_next_room()
 	GameManager.connect("next_level",move_to_next_room)
+	GameManager.connect("place_debug",place_debug)
 
 func move_to_next_room() -> void:
 	pick_room()
@@ -33,9 +35,11 @@ func move_to_next_room() -> void:
 	move_camera()
 	timer.start()
 	if old_room_instance:
-		await get_tree().create_timer(1.5)
+		await get_tree().create_timer(1).timeout
 		old_room_instance.queue_free()
 
+func place_debug(position: Vector2) -> void:
+	debug.position = position
 
 func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("next_room"):

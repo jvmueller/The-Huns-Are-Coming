@@ -1,5 +1,5 @@
 extends Node
-
+signal place_debug (position: Vector2)
 signal next_level
 signal lock_player
 
@@ -14,3 +14,6 @@ func win_level() -> void:
 
 func freeze_player() -> void:
 	emit_signal("lock_player")
+
+func show_debug(position: Vector2) -> void:
+	emit_signal("place_debug",position)

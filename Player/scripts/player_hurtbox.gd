@@ -19,7 +19,7 @@ func set_roll_collider(status: bool) -> void:
 
 
 func _on_body_entered(body: Node2D) -> void:
-	handle_collision(body,player.position)
+	handle_collision(body, player.position)
 
 
 func handle_collision(level_tilemap: TileMapLayer, player_position: Vector2) -> void:

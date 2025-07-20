@@ -69,7 +69,7 @@ roll={
 
 [physics]
 
-2d/default_gravity=13000.0
+2d/default_gravity=19000.0
 2d/default_linear_damp=0.0
 2d/default_angular_damp=0.0
 

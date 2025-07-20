@@ -1,11 +1,10 @@
-[gd_scene load_steps=29 format=3 uid="uid://cqhi22h0pk084"]
+[gd_scene load_steps=27 format=3 uid="uid://cqhi22h0pk084"]
 
 [ext_resource type="Script" uid="uid://cno3f0fu3ihw6" path="res://Player/scripts/player.gd" id="1_wmpps"]
 [ext_resource type="Shape2D" uid="uid://bgjdtyxx5ifsj" path="res://Player/colliders/roll_collider.tres" id="3_ekj7i"]
 [ext_resource type="Shape2D" uid="uid://b5u0ifpxwcec0" path="res://Player/colliders/player_collider.tres" id="3_xr54b"]
 [ext_resource type="Texture2D" uid="uid://dg6ovs0facwo7" path="res://Player/sprites/(OLD) Character Sprite.PNG" id="4_bed1q"]
 [ext_resource type="Script" uid="uid://8eea73wlkd0f" path="res://Player/scripts/player_hurtbox.gd" id="5_bed1q"]
-[ext_resource type="Script" uid="uid://7cgd8b0ytcc8" path="res://Player/scripts/player_hitbox.gd" id="5_jkbpc"]
 [ext_resource type="AudioStream" uid="uid://cac4tot7etlfr" path="res://Audio/Walk.wav" id="6_nshua"]
 [ext_resource type="Shape2D" uid="uid://ch3k7x55h28i6" path="res://Player/colliders/hurtbox_collider.tres" id="6_xty5l"]
 [ext_resource type="AudioStream" uid="uid://dcr6qhyj887tn" path="res://Audio/Jump.wav" id="7_7umw3"]
@@ -15,7 +14,6 @@
 [ext_resource type="AudioStream" uid="uid://doh6s88wbrit" path="res://Audio/Roll.wav" id="11_7umw3"]
 [ext_resource type="AudioStream" uid="uid://fcaxp8g55ytu" path="res://Audio/Fireworks.wav" id="11_s2lx4"]
 [ext_resource type="AudioStream" uid="uid://dwhx8yabfy85o" path="res://Audio/Stun.wav" id="12_xty5l"]
-[ext_resource type="AudioStream" uid="uid://dgijua3kdxs7m" path="res://Audio/Destroy.wav" id="16_s2lx4"]
 
 [sub_resource type="Curve" id="Curve_wmpps"]
 _limits = [0.0, 0.7, 0.0, 0.5]
@@ -23,7 +21,7 @@ _data = [Vector2(0, 0.047191), 0.0, 0.0, 0, 0, Vector2(0.329787, 0.511236), 3.52
 point_count = 3
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_7umw3"]
-radius = 346.674
+radius = 356.49
 
 [sub_resource type="Animation" id="Animation_wmpps"]
 length = 0.001
@@ -50,6 +48,18 @@ tracks/1/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector2(0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
 }
 
 [sub_resource type="Animation" id="Animation_r6dbh"]
@@ -116,22 +126,34 @@ length = 0.2
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:rotation")
+tracks/0/path = NodePath("Sprite2D:scale")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(0.9, 0.9), Vector2(1.1, 1.1), Vector2(1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [0.0]
 }
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Sprite2D:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
@@ -240,9 +262,9 @@ collision_layer = 2
 script = ExtResource("1_wmpps")
 move_speed = 7000.0
 roll_speed = 21000.0
-jump_power = 10000.0
+jump_power = 9000.0
 wall_jump_horz_power = 7000.0
-wall_jump_vert_power = 8500.0
+wall_jump_vert_power = 7000.0
 slide_speed = 2500.0
 drag_acceleration = 125.0
 walk_acceleration = 750.0
@@ -256,32 +278,27 @@ player_collider = ExtResource("3_xr54b")
 roll_collider = ExtResource("3_ekj7i")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(0.9, 0.9)
 texture = ExtResource("4_bed1q")
 
 [node name="Hitbox" type="Area2D" parent="Sprite2D"]
-position = Vector2(-758.519, 236.296)
-collision_layer = 2
-script = ExtResource("5_jkbpc")
+position = Vector2(-604, 282)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Sprite2D/Hitbox"]
 shape = SubResource("CircleShape2D_7umw3")
-debug_color = Color(0.768754, 0.429873, 0.328386, 0.42)
 
 [node name="Hurtbox" type="Area2D" parent="."]
+visible = false
 collision_layer = 2
-collision_mask = 4
+collision_mask = 5
 script = ExtResource("5_bed1q")
 player_collider = ExtResource("6_xty5l")
 roll_collider = ExtResource("7_dwsv8")
 
 [node name="HurtboxCollider" type="CollisionShape2D" parent="Hurtbox"]
-position = Vector2(0, 50)
 shape = ExtResource("6_xty5l")
 debug_color = Color(0.907647, 0.000120134, 0.739352, 0.42)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, 64.4996)
 scale = Vector2(0.999999, 0.999999)
 shape = ExtResource("3_xr54b")
 
@@ -342,11 +359,6 @@ volume_db = -4.685
 stream = ExtResource("12_xty5l")
 volume_db = -7.495
 
-[node name="DestroyAudio" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("16_s2lx4")
-volume_db = -11.243
-
-[connection signal="body_entered" from="Sprite2D/Hitbox" to="Sprite2D/Hitbox" method="_on_body_entered"]
 [connection signal="body_entered" from="Hurtbox" to="Hurtbox" method="_on_body_entered"]
 [connection signal="timeout" from="CoyoteTimer" to="." method="_on_coyote_timer_timeout"]
 [connection signal="timeout" from="JumpBufferTimer" to="." method="_on_jump_buffer_timer_timeout"]

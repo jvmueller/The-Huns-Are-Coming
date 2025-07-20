@@ -240,9 +240,9 @@ collision_layer = 2
 script = ExtResource("1_wmpps")
 move_speed = 7000.0
 roll_speed = 21000.0
-jump_power = 10000.0
+jump_power = 9000.0
 wall_jump_horz_power = 7000.0
-wall_jump_vert_power = 8500.0
+wall_jump_vert_power = 7000.0
 slide_speed = 2500.0
 drag_acceleration = 125.0
 walk_acceleration = 750.0
@@ -276,12 +276,10 @@ player_collider = ExtResource("6_xty5l")
 roll_collider = ExtResource("7_dwsv8")
 
 [node name="HurtboxCollider" type="CollisionShape2D" parent="Hurtbox"]
-position = Vector2(0, 50)
 shape = ExtResource("6_xty5l")
 debug_color = Color(0.907647, 0.000120134, 0.739352, 0.42)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, 64.4996)
 scale = Vector2(0.999999, 0.999999)
 shape = ExtResource("3_xr54b")
 
@@ -344,7 +342,6 @@ volume_db = -7.495
 
 [node name="DestroyAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("16_s2lx4")
-volume_db = -11.243
 
 [connection signal="body_entered" from="Sprite2D/Hitbox" to="Sprite2D/Hitbox" method="_on_body_entered"]
 [connection signal="body_entered" from="Hurtbox" to="Hurtbox" method="_on_body_entered"]

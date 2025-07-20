@@ -27,7 +27,7 @@ enum state {
 @onready var stun_audio: AudioStreamPlayer = $StunAudio
 @onready var roll_audio: AudioStreamPlayer = $RollAudio
 @onready var hurtbox: Area2D = $Hurtbox
-
+@onready var hitbox: Area2D = $Sprite2D/Hitbox
 
 var current_state: state
 var direction
@@ -38,9 +38,9 @@ var player_frozen: bool = false
 
 @export var move_speed: float = 650
 @export var roll_speed: float = 1200
-@export var jump_power: float = 800
+@export var jump_power: float = 600
 @export var wall_jump_horz_power: float = 500
-@export var wall_jump_vert_power: float = 850
+@export var wall_jump_vert_power: float = 6400
 @export var slide_speed: float = 250
 @export var drag_acceleration: float = 15
 @export var walk_acceleration: float = 50
@@ -78,12 +78,13 @@ func change_state(new_state: state) -> void:
 		
 		state.falling:
 			stop_all_sounds()
-			print(animation_player.current_animation)
 			if animation_player.current_animation != "jump":
 				animation_player.play("fall")
 		
 		state.attacking:
 			attack_timer.start()
+			hitbox.enable_attack_hitbox()
+			
 		
 		state.rolling:
 			stop_all_sounds()
@@ -197,9 +198,10 @@ func handle_move() -> void:
 
 func flip_sprite() -> void:
 	if direction == 1:
-		sprite_2d.flip_h = true
+		sprite_2d.scale.x = -1 * abs(sprite_2d.scale.x)
 	elif direction == -1:
-		sprite_2d.flip_h = false
+		sprite_2d.scale.x = 1 * abs(sprite_2d.scale.x)
+
 
 func is_fast_wall_jumping() -> bool:
 	return abs(velocity.x) >= move_speed and current_state == state.falling
@@ -256,6 +258,7 @@ func _physics_process(delta: float) -> void:
 					collision_shape_2d.set_deferred("shape",player_collider)
 					hurtbox.set_roll_collider(false)
 					change_state(state.idling)
+				
 			state.walking:
 				if not is_on_floor():
 					coyote_active = true
@@ -294,6 +297,9 @@ func _physics_process(delta: float) -> void:
 					
 					if Input.is_action_just_pressed("roll"):
 						change_state(state.rolling)
+						
+					if Input.is_action_just_pressed("attack"):
+						change_state(state.attacking)
 					
 				if is_on_floor():
 					land_audio.play()
@@ -304,6 +310,7 @@ func _physics_process(delta: float) -> void:
 				
 			state.attacking:
 				if attack_timer.is_stopped():
+					hitbox.disable_attack_hitbox()
 					change_state(state.idling)
 				
 			state.rolling:

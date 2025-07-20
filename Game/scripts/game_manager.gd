@@ -3,6 +3,10 @@ signal place_debug (position: Vector2)
 signal next_level
 signal lock_player
 
+var player_safe: bool
+var time_saved: float
+var rooms_complete: int
+
 func lose() -> void:
 	get_tree().change_scene_to_file("res://Menus/scenes/game_over_screen.tscn")
 

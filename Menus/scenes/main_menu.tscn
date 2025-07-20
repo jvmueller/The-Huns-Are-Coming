@@ -1,7 +1,12 @@
-[gd_scene load_steps=3 format=3 uid="uid://dkj2kch5yhmp8"]
+[gd_scene load_steps=8 format=3 uid="uid://dkj2kch5yhmp8"]
 
 [ext_resource type="Script" uid="uid://c6hksc24diexn" path="res://Menus/scripts/main_menu.gd" id="1_lwrhj"]
+[ext_resource type="Theme" uid="uid://bnbfbtlcic5p7" path="res://Game/scenes/level scenes/game_theme.tres" id="1_nt5xi"]
 [ext_resource type="PackedScene" uid="uid://c4cg1tann2x24" path="res://Game/scenes/game.tscn" id="3_no2ta"]
+[ext_resource type="PackedScene" uid="uid://ub3li2ccqg1y" path="res://Menus/scenes/credits.tscn" id="4_no2ta"]
+[ext_resource type="AudioStream" uid="uid://crvapktrangr6" path="res://Audio/Eastern Thought.mp3" id="5_kb7nx"]
+[ext_resource type="AudioStream" uid="uid://daunultpxu6oe" path="res://Audio/Click.wav" id="6_bt2e8"]
+[ext_resource type="Texture2D" uid="uid://ba545djt0g3e" path="res://Menus/sprites/Title.PNG" id="7_bt2e8"]
 
 [node name="Main Menu" type="Control"]
 layout_mode = 3
@@ -10,22 +15,51 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_nt5xi")
 script = ExtResource("1_lwrhj")
 game_scene = ExtResource("3_no2ta")
+credits_scene = ExtResource("4_no2ta")
+
+[node name="EasternThought" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_kb7nx")
+volume_db = -10.0
+parameters/looping = true
+
+[node name="Click" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_bt2e8")
+volume_db = -2.0
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.768721, 0.446308, 0.415652, 1)
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("7_bt2e8")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
-anchors_preset = 8
+anchors_preset = 7
 anchor_left = 0.5
-anchor_top = 0.5
+anchor_top = 1.0
 anchor_right = 0.5
-anchor_bottom = 0.5
+anchor_bottom = 1.0
 offset_left = -155.5
-offset_top = -106.0
+offset_top = -380.0
 offset_right = 155.5
-offset_bottom = 106.0
+offset_bottom = -58.0
 grow_horizontal = 2
-grow_vertical = 2
+grow_vertical = 0
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10

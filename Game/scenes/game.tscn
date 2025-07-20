@@ -1,15 +1,32 @@
-[gd_scene load_steps=4 format=3 uid="uid://c4cg1tann2x24"]
+[gd_scene load_steps=7 format=3 uid="uid://c4cg1tann2x24"]
 
 [ext_resource type="Script" uid="uid://dfaro5lqqhu8v" path="res://Game/scripts/level_manager.gd" id="1_ds5t7"]
+[ext_resource type="Texture2D" uid="uid://c7jkimecn6lo1" path="res://Game/sprites/1)EXAMPLE_ClearNightSky.png" id="1_w3xpy"]
 [ext_resource type="AudioStream" uid="uid://deh3duxhc7jy3" path="res://Audio/Mountain Emperor.mp3" id="2_7475e"]
+[ext_resource type="PackedScene" uid="uid://g1kucvq6gss4" path="res://Game/scenes/level scenes/wall.tscn" id="3_2jiha"]
 [ext_resource type="Texture2D" uid="uid://b5e15o12j2wkx" path="res://Player/sprites/icon.svg" id="3_vc2ns"]
+[ext_resource type="AudioStream" uid="uid://crvapktrangr6" path="res://Audio/Eastern Thought.mp3" id="5_jik8v"]
 
 [node name="Game" type="Node2D"]
+
+[node name="Background Layer" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="Background" type="TextureRect" parent="Background Layer"]
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("1_w3xpy")
 
 [node name="LevelManager" type="Node" parent="."]
 script = ExtResource("1_ds5t7")
 horz_dist = 200000.0
-vert_variance = 50000.0
+vert_variance = 10000.0
+tutorial_time = 300.0
+game_time = 48.0
+game_time_depletion = 3.0
+rooms_to_win = 8
+wall_scene = ExtResource("3_2jiha")
+increment = 20000.0
 
 [node name="debug" type="Sprite2D" parent="."]
 visible = false
@@ -18,26 +35,47 @@ scale = Vector2(10, 10)
 texture = ExtResource("3_vc2ns")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(0.04, 0.04)
+zoom = Vector2(0.03, 0.03)
 position_smoothing_enabled = true
 position_smoothing_speed = 3.0
 
 [node name="GameMusic" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("2_7475e")
 volume_db = -20.0
-autoplay = true
+parameters/looping = true
+
+[node name="TutorialMusic" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_jik8v")
+volume_db = -10.0
 parameters/looping = true
 
 [node name="Timer" type="Timer" parent="."]
 wait_time = 30.0
+one_shot = true
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="HunTimer" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer"]
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="UI Layer" type="CanvasLayer" parent="."]
 
-[node name="TimerLabel" type="Label" parent="CanvasLayer/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "null"
+[node name="TimerLabel" type="Label" parent="UI Layer"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -90.5
+offset_top = -42.0
+offset_right = 90.5
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 21
+text = "null null null"
+
+[connection signal="timeout" from="Timer" to="LevelManager" method="_on_timer_timeout"]
+[connection signal="timeout" from="HunTimer" to="LevelManager" method="_on_hun_timer_timeout"]

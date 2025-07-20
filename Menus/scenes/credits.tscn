@@ -1,0 +1,83 @@
+[gd_scene load_steps=5 format=3 uid="uid://ub3li2ccqg1y"]
+
+[ext_resource type="Theme" uid="uid://bnbfbtlcic5p7" path="res://Game/scenes/level scenes/game_theme.tres" id="1_efk5n"]
+[ext_resource type="Script" uid="uid://b0wusps6f8inr" path="res://Menus/scenes/credits.gd" id="2_efk5n"]
+[ext_resource type="AudioStream" uid="uid://crvapktrangr6" path="res://Audio/Eastern Thought.mp3" id="3_k7tuj"]
+[ext_resource type="AudioStream" uid="uid://daunultpxu6oe" path="res://Audio/Click.wav" id="4_t8y6j"]
+
+[node name="Credits" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_efk5n")
+script = ExtResource("2_efk5n")
+
+[node name="EasternThought" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_k7tuj")
+volume_db = -10.0
+
+[node name="Click" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_t8y6j")
+volume_db = -2.0
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.157407, 0.479453, 0.538807, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -193.0
+offset_top = -188.0
+offset_right = 195.0
+offset_bottom = 181.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Back Button" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Back"
+
+[node name="Panel" type="Panel" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = -17.0
+offset_bottom = 18.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/Panel/MarginContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Art: Felisitas Michella Purnomo
+Programming: Jack Mueller
+Level Design: Lucas Falker
+Sounds: Lucas Falker
+End Screen Art: Cora Mueller"
+
+[connection signal="pressed" from="VBoxContainer/Back Button" to="." method="_on_back_button_pressed"]

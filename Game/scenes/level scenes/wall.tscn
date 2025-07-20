@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://g1kucvq6gss4"]
+
+[ext_resource type="Texture2D" uid="uid://bifeggaaj4d4r" path="res://Game/sprites/BG_Walls.png" id="1_qrcmq"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+z_index = -1
+position = Vector2(-72.9999, 13337)
+scale = Vector2(15, 15)
+texture = ExtResource("1_qrcmq")

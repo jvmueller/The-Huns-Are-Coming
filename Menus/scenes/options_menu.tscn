@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://cilqtqqeaj1ts"]
+[gd_scene load_steps=5 format=3 uid="uid://cilqtqqeaj1ts"]
 
 [ext_resource type="Script" uid="uid://1127sqkoq07j" path="res://Menus/scripts/options_menu.gd" id="1_a4e2l"]
+[ext_resource type="Theme" uid="uid://bnbfbtlcic5p7" path="res://Game/scenes/level scenes/game_theme.tres" id="1_g3ea0"]
+[ext_resource type="AudioStream" uid="uid://crvapktrangr6" path="res://Audio/Eastern Thought.mp3" id="3_us3g5"]
+[ext_resource type="AudioStream" uid="uid://daunultpxu6oe" path="res://Audio/Click.wav" id="4_x1p8i"]
 
 [node name="Options Menu" type="Control"]
 layout_mode = 3
@@ -9,7 +12,25 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_g3ea0")
 script = ExtResource("1_a4e2l")
+
+[node name="EasternThought" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_us3g5")
+volume_db = -10.0
+
+[node name="Click" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_x1p8i")
+volume_db = -2.0
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.376311, 0.310151, 0.317974, 1)
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -38,6 +59,25 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_font_sizes/font_size = 30
 text = "Back"
+
+[node name="TextPanel" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/TextPanel"]
+layout_mode = 2
+theme = ExtResource("1_g3ea0")
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/TextPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "we didn't have time to
+implement settings
+(these don't work)"
+horizontal_alignment = 1
 
 [node name="MusicPanel" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2

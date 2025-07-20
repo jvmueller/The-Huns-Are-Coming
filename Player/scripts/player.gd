@@ -26,9 +26,10 @@ enum state {
 @onready var fireworks_audio: AudioStreamPlayer = $FireworksAudio
 @onready var stun_audio: AudioStreamPlayer = $StunAudio
 @onready var roll_audio: AudioStreamPlayer = $RollAudio
-@onready var wall_jump_audio: AudioStreamPlayer = $WallJumpAudio
+@onready var attack_audio: AudioStreamPlayer = $AttackAudio
 @onready var hurtbox: Area2D = $Hurtbox
 @onready var hitbox: Area2D = $Sprite2D/Hitbox
+@onready var wall_coyote_timer: Timer = $WallCoyoteTimer
 
 var current_state: state
 var direction
@@ -36,6 +37,7 @@ var last_direction = 1
 var fast_falling: bool
 var coyote_active: bool
 var player_frozen: bool = false
+var start_pos: Vector2
 
 @export var move_speed: float = 650
 @export var roll_speed: float = 1200
@@ -58,6 +60,7 @@ var player_frozen: bool = false
 
 
 func _ready() -> void:
+	start_pos = position
 	current_state = state.falling
 	collision_shape_2d.shape = player_collider
 	GameManager.connect("lock_player",lock_movement)
@@ -85,7 +88,7 @@ func change_state(new_state: state) -> void:
 		state.attacking:
 			animation_player.play("attack")
 			attack_timer.start()
-			wall_jump_audio.play()
+			attack_audio.play()
 			hitbox.enable_attack_hitbox()
 			
 		
@@ -109,10 +112,8 @@ func change_state(new_state: state) -> void:
 		state.sliding:
 			slide_audio.play()
 			fast_falling = false
-			if last_direction == 1:
-				animation_player.play("slide right")
-			else:
-				animation_player.play("slide left")
+			sprite_2d.flip_h = true
+			animation_player.play("slide")
 		
 		state.stun:
 			stop_all_sounds()
@@ -132,7 +133,6 @@ func lock_movement() -> void:
 
 #specific state change into falling induced by the jump action
 func jump() -> void:
-	animation_player.play("jump")
 	jump_audio.play()
 	velocity.y += -1 * jump_power
 	velocity.y = clampf(velocity.y,-1 * jump_power, 0)
@@ -141,13 +141,19 @@ func jump() -> void:
 
 
 func wall_jump() -> void:
-	animation_player.play("jump")
+	var jump_direction
+	if current_state == state.sliding:
+		print("wall jump")
+		jump_direction = -1
+	elif current_state == state.falling:
+		print("coyote wall jump")
+		jump_direction = 1
 	jump_audio.play()
 	wall_jump_timer.start()
 	fast_falling = true
 	velocity.y = -1 * wall_jump_vert_power
 	#velocity.y = clampf(velocity.y,-1 * (wall_jump_vert_power - slide_speed),0)
-	velocity.x = -1 * direction * wall_jump_horz_power
+	velocity.x = jump_direction * direction * wall_jump_horz_power
 	change_state(state.falling)
 
 
@@ -228,6 +234,18 @@ func update_gravity(delta: float):
 
 #handles what happens on a states update
 func _physics_process(delta: float) -> void:
+	if position.y >= 40000:
+		GameManager.lose()
+	
+	if Input.is_action_just_pressed("unstuck"):
+		position = start_pos
+		velocity = Vector2(0,0)
+		collision_shape_2d.set_deferred("shape",player_collider)
+		change_state(state.falling)
+
+	if Input.is_action_just_released("jump"):
+		velocity.y *= .6
+
 	update_gravity(delta)
 	
 	flip_sprite()
@@ -285,7 +303,10 @@ func _physics_process(delta: float) -> void:
 				
 			state.falling:
 				if Input.is_action_just_pressed("jump"):
-					if coyote_active:
+					if wall_coyote_timer.time_left > 0:
+						wall_jump()
+					
+					elif coyote_active:
 						jump()
 					else:
 						jump_buffer_timer.start()
@@ -338,13 +359,17 @@ func _physics_process(delta: float) -> void:
 			state.sliding:
 				handle_move()
 				
-				if is_on_wall_only() and Input.is_action_just_pressed("jump"):
+				if is_on_wall() and not is_on_floor() and Input.is_action_just_pressed("jump"):
+					sprite_2d.flip_h = false
 					wall_jump()
 				
 				if not is_on_wall():
+					sprite_2d.flip_h = false
+					wall_coyote_timer.start()
 					change_state(state.falling)
 				
 				if is_on_floor():
+					sprite_2d.flip_h = false
 					change_state(state.idling)
 					
 	else:

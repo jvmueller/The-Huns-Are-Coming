@@ -1,0 +1,95 @@
+[gd_resource type="TileSet" load_steps=17 format=3 uid="uid://041xseo740nb"]
+
+[ext_resource type="Texture2D" uid="uid://tsan7thf5sur" path="res://Game/sprites/Background Tiles.PNG" id="1_0ep3c"]
+[ext_resource type="Texture2D" uid="uid://bgtovq4cs1g6i" path="res://Game/sprites/Level Tiles (Surface).PNG" id="2_su2fa"]
+[ext_resource type="Texture2D" uid="uid://bmqhsdcyp6q4t" path="res://Game/sprites/Crate.PNG" id="3_4nnu0"]
+[ext_resource type="Texture2D" uid="uid://bd40g07upxsrh" path="res://Game/sprites/Firework crate (Resize).PNG" id="4_0la7v"]
+[ext_resource type="Texture2D" uid="uid://dyj4pmxryplr7" path="res://Game/sprites/Door.png" id="5_hx50d"]
+[ext_resource type="Texture2D" uid="uid://b6i52srhpua2p" path="res://Game/sprites/table_grounded.png" id="6_qcx5f"]
+[ext_resource type="Texture2D" uid="uid://dcf244se3if76" path="res://Game/sprites/Lamp _ Lantern.PNG" id="7_0ep3c"]
+[ext_resource type="Texture2D" uid="uid://dhgtprhicahi4" path="res://Game/sprites/Level Tiles (UNDER - Resize).png" id="8_51swh"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_f7k7x"]
+resource_name = "background"
+texture = ExtResource("1_0ep3c")
+texture_region_size = Vector2i(2048, 2048)
+0:0/0 = 0
+0:0/0/custom_data_0 = "background"
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_j4yac"]
+resource_name = "level floor"
+texture = ExtResource("2_su2fa")
+texture_region_size = Vector2i(2048, 2048)
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-1024, -1024, 1024, -1024, 1024, 1024, -1024, 1024)
+0:0/0/custom_data_0 = "level"
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_62ys1"]
+resource_name = "crate"
+texture = ExtResource("3_4nnu0")
+texture_region_size = Vector2i(2048, 2048)
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-1024, -1024, 1024, -1024, 1024, 1024, -1024, 1024)
+0:0/0/custom_data_0 = "destructible"
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_nin13"]
+resource_name = "firework crate"
+texture = ExtResource("4_0la7v")
+texture_region_size = Vector2i(2048, 2048)
+0:0/0 = 0
+0:0/0/physics_layer_1/polygon_0/points = PackedVector2Array(-1024, -1024, 1024, -1024, 1024, 1024, -1024, 1024)
+0:0/0/custom_data_0 = "firework"
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_akj62"]
+texture = ExtResource("5_hx50d")
+texture_region_size = Vector2i(2048, 2048)
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-1024, -1024, 1024, -1024, 1024, 1024, -1024, 1024)
+0:0/0/custom_data_0 = "door"
+0:1/0 = 0
+0:1/0/physics_layer_0/polygon_0/points = PackedVector2Array(-1024, -1024, 1024, -1024, 1024, 1024, -1024, 1024)
+0:1/0/custom_data_0 = "door"
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4xie8"]
+texture = ExtResource("6_qcx5f")
+texture_region_size = Vector2i(2048, 2048)
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(1024, 170.667, -1024, 170.667, -1024, 1024, 1024, 1024)
+0:0/0/custom_data_0 = "table"
+1:0/0 = 0
+1:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(1024, 170.667, -1024, 170.667, -1024, 1024, 1024, 1024)
+1:0/0/custom_data_0 = "table"
+2:0/0 = 0
+2:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(1024, 170.667, -1024, 170.667, -1024, 1024, 1024, 1024)
+2:0/0/custom_data_0 = "table"
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_qm3we"]
+texture = ExtResource("7_0ep3c")
+texture_region_size = Vector2i(2048, 2048)
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-1024, -1024, 1024, -1024, 1024, 1024, -1024, 1024)
+0:0/0/custom_data_0 = "destructible"
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_h4h72"]
+texture = ExtResource("8_51swh")
+texture_region_size = Vector2i(2048, 2048)
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-1024, -1024, 1024, -1024, 1024, 1024, -1024, 1024)
+0:0/0/custom_data_0 = "level"
+
+[resource]
+tile_size = Vector2i(2048, 2048)
+physics_layer_0/collision_layer = 1
+physics_layer_0/collision_mask = 2
+physics_layer_1/collision_layer = 4
+physics_layer_1/collision_mask = 2
+custom_data_layer_0/name = "name"
+custom_data_layer_0/type = 4
+sources/0 = SubResource("TileSetAtlasSource_f7k7x")
+sources/1 = SubResource("TileSetAtlasSource_j4yac")
+sources/3 = SubResource("TileSetAtlasSource_nin13")
+sources/2 = SubResource("TileSetAtlasSource_62ys1")
+sources/7 = SubResource("TileSetAtlasSource_h4h72")
+sources/4 = SubResource("TileSetAtlasSource_akj62")
+sources/5 = SubResource("TileSetAtlasSource_4xie8")
+sources/6 = SubResource("TileSetAtlasSource_qm3we")
